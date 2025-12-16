@@ -1379,119 +1379,100 @@
     // 3D VISUALIZATION
     // ============================================================
     
-    function draw3DWavetable() {
-      const width = canvas3D.width;
-      const height = canvas3D.height;
-      const numFrames = frames.length;
-      
-      if (numFrames === 0) return;
-      
-      ctx3D.fillStyle = '#000000';
-      ctx3D.fillRect(0, 0, width, height);
-      
-      const originX = 120;
-      const originY = height - 80;
-      const waveWidth = 400;
-      const waveHeight = 80;
-      const zSpacing = 28;
-      const maxFramesToShow = Math.min(numFrames, 12);
-      
-      // Position actuelle (pour highlight)
-      const currentFrameIndex = Math.floor(wtPosition * (numFrames - 1));
-      
-      // Dessiner les frames de l'arrière vers l'avant
-      for (let f = maxFramesToShow - 1; f >= 0; f--) {
-        const frameIdx = Math.floor((f / (maxFramesToShow - 1)) * (numFrames - 1));
-        const frame = frames[frameIdx];
-        if (!frame) continue;
-        
-        const zOffset = (maxFramesToShow - 1 - f) * zSpacing;
-        const yBase = originY - zOffset;
-        const isCurrentFrame = frameIdx === currentFrameIndex;
-        
-        // Ligne de base
-        ctx3D.strokeStyle = '#333333';
-        ctx3D.lineWidth = 1;
-        ctx3D.beginPath();
-        ctx3D.moveTo(originX + zOffset, yBase);
-        ctx3D.lineTo(originX + zOffset + waveWidth, yBase);
-        ctx3D.stroke();
-        
-        // Waveform
-        ctx3D.beginPath();
-        ctx3D.strokeStyle = isCurrentFrame ? '#ffffff' : '#888888';
-        ctx3D.lineWidth = isCurrentFrame ? 2 : 1;
-        
-        if (isCurrentFrame) {
-          ctx3D.shadowColor = '#ffffff';
-          ctx3D.shadowBlur = 8;
-        }
-        
-        for (let i = 0; i < waveWidth; i++) {
-          const sampleIdx = Math.floor((i / waveWidth) * SAMPLES_PER_FRAME);
-          const x = originX + zOffset + i;
-          const y = yBase - frame.waveform[sampleIdx] * waveHeight;
-          
-          if (i === 0) ctx3D.moveTo(x, y);
-          else ctx3D.lineTo(x, y);
-        }
-        
-        ctx3D.stroke();
-        ctx3D.shadowBlur = 0;
-        
-        // Numéro de frame
-        ctx3D.fillStyle = isCurrentFrame ? '#ffffff' : '#666666';
-        ctx3D.font = '11px monospace';
-        ctx3D.fillText(`${frameIdx + 1}`, originX + zOffset - 25, yBase + 4);
-      }
-      
-      // Titre
-      ctx3D.fillStyle = '#ffffff';
-      ctx3D.font = 'bold 12px monospace';
-      ctx3D.fillText('WAVETABLE', 10, 22);
-      ctx3D.fillStyle = '#888888';
-      ctx3D.font = '11px monospace';
-      ctx3D.fillText(`${numFrames} frame${numFrames > 1 ? 's' : ''}`, 95, 22);
-      
-      ctx3D.fillStyle = '#666666';
-      ctx3D.font = '11px monospace';
-      const currentFrameDisplay = Math.floor(wtPosition * (numFrames - 1)) + 1;
-      ctx3D.fillText(`Position: ${(wtPosition * 100).toFixed(1)}%  —  Frame ${currentFrameDisplay}/${numFrames}`, 10, 40);
-      
-      // Aperçu de la forme d'onde actuelle
-      const previewX = width - 220;
-      const previewY = height - 70;
-      const previewW = 200;
-      const previewH = 50;
-      
-      ctx3D.strokeStyle = '#333333';
-      ctx3D.lineWidth = 1;
-      ctx3D.strokeRect(previewX, previewY - previewH, previewW, previewH);
-      
-      const currentWave = getWaveformAtPosition(wtPosition);
-      if (currentWave) {
-        ctx3D.beginPath();
-        ctx3D.strokeStyle = '#ffffff';
-        ctx3D.lineWidth = 1.5;
-        ctx3D.shadowColor = '#ffffff';
-        ctx3D.shadowBlur = 6;
-        
-        for (let i = 0; i < previewW; i++) {
-          const sampleIdx = Math.floor((i / previewW) * SAMPLES_PER_FRAME);
-          const x = previewX + i;
-          const y = (previewY - previewH / 2) - currentWave[sampleIdx] * (previewH * 0.4);
-          
-          if (i === 0) ctx3D.moveTo(x, y);
-          else ctx3D.lineTo(x, y);
-        }
-        ctx3D.stroke();
-        ctx3D.shadowBlur = 0;
-      }
-      
-      ctx3D.fillStyle = '#666666';
-      ctx3D.font = '9px monospace';
-      ctx3D.fillText('SORTIE ACTUELLE', previewX, previewY + 12);
+   function draw3DWavetable() {
+  const width = canvas3D.width;
+  const height = canvas3D.height;
+  const numFrames = frames.length;
+  if (numFrames === 0) return;
+
+  // === PARAMÈTRES FIXES (PERF) ===
+  const NUM_LINES = 48;              // nombre constant de lignes
+  const SAMPLES_PER_LINE = 256;
+
+  const originX = 110;
+  const originY = height - 90;
+  const scaleX = (width - 200) / SAMPLES_PER_LINE;
+  const scaleY = 90;
+
+  const totalDepth = Math.min(300, height - 160);
+  const scaleZ = totalDepth / NUM_LINES;
+  const isoAngle = 0.4;
+
+  // === CLEAR ===
+  ctx3D.fillStyle = '#000000';
+  ctx3D.fillRect(0, 0, width, height);
+
+  // === RENDU DE L'ARRIÈRE VERS L'AVANT ===
+  for (let line = 0; line < NUM_LINES; line++) {
+    const framePos = line / (NUM_LINES - 1); // position continue [0..1]
+    const waveform = getWaveformAtPosition(framePos);
+    if (!waveform) continue;
+
+    const zOffset = line * scaleZ * isoAngle;
+    const yBase = originY - line * scaleZ;
+
+    // === HIGHLIGHT ===
+    const dist = Math.abs(framePos - wtPosition);
+    const isMain = dist < 0.03;
+    const isNear = dist < 0.08;
+
+    let alpha, brightness;
+    if (isMain) {
+      alpha = 1.0;
+      brightness = 255;
+    } else if (isNear) {
+      alpha = 0.7;
+      brightness = 180;
+    } else {
+      alpha = 0.25 + (line / NUM_LINES) * 0.35;
+      brightness = 60 + Math.floor((line / NUM_LINES) * 80);
     }
+
+    ctx3D.strokeStyle = isMain
+      ? `rgba(255,255,255,${alpha})`
+      : `rgba(${brightness},${brightness},${brightness},${alpha})`;
+
+    ctx3D.lineWidth = isMain ? 2 : 1;
+    ctx3D.shadowColor = isMain ? '#ffffff' : 'transparent';
+    ctx3D.shadowBlur = isMain ? 12 : 0;
+
+    ctx3D.beginPath();
+
+    for (let i = 0; i < SAMPLES_PER_LINE; i++) {
+      const sampleIdx = Math.floor((i / SAMPLES_PER_LINE) * SAMPLES_PER_FRAME);
+      const x = originX + i * scaleX + zOffset;
+      const y = yBase - waveform[sampleIdx] * scaleY;
+
+      if (i === 0) ctx3D.moveTo(x, y);
+      else ctx3D.lineTo(x, y);
+    }
+
+    ctx3D.stroke();
+    ctx3D.shadowBlur = 0;
+  }
+
+  // === TITRE / INFOS ===
+  ctx3D.fillStyle = '#ffffff';
+  ctx3D.font = 'bold 12px monospace';
+  ctx3D.fillText('WAVETABLE', 10, 20);
+
+  ctx3D.fillStyle = '#888888';
+  ctx3D.font = '11px monospace';
+  ctx3D.fillText(
+    `${numFrames} frame${numFrames > 1 ? 's' : ''}`,
+    100,
+    20
+  );
+
+  ctx3D.fillStyle = '#666666';
+  ctx3D.font = '11px monospace';
+  ctx3D.fillText(
+    `Position: ${(wtPosition * 100).toFixed(1)} %`,
+    10,
+    38
+  );
+}
+
     
     // ============================================================
     // MINI WAVEFORM
