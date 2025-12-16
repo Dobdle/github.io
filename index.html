@@ -26,251 +26,1870 @@
     .text-neutral-500 { color: #737373; }
     .text-neutral-600 { color: #525252; }
     .text-neutral-700 { color: #404040; }
-
-    .bg-neutral-800 { background-color: #262626; }
+    .bg-neutral-800 { background: #262626; }
+    .bg-neutral-900 { background: #171717; }
+    .bg-neutral-950 { background: #0a0a0a; }
+    .border-neutral-700 { border-color: #404040; }
     .border-neutral-800 { border-color: #262626; }
     .border-neutral-900 { border-color: #171717; }
     
-    .w-4 { width: 1rem; }
-    .w-8 { width: 2rem; }
-    .w-16 { width: 4rem; }
-    .w-full { width: 100%; }
-    .h-full { height: 100%; }
-    .h-1 { height: 0.25rem; }
-    .h-4 { height: 1rem; }
-    .min-h-screen { min-height: 100vh; }
-    .max-w-7xl { max-width: 80rem; }
-    
-    .mx-auto { margin-left: auto; margin-right: auto; }
-    .my-4 { margin-top: 1rem; margin-bottom: 1rem; }
-    .mt-0 { margin-top: 0; }
-    .mt-2 { margin-top: 0.5rem; }
-    .mt-4 { margin-top: 1rem; }
-    .mt-6 { margin-top: 1.5rem; }
-    .mt-12 { margin-top: 3rem; }
-    .mb-2 { margin-bottom: 0.5rem; }
-    .mb-4 { margin-bottom: 1rem; }
-    .mb-8 { margin-bottom: 2rem; }
-    .mr-2 { margin-right: 0.5rem; }
-    .p-2 { padding: 0.5rem; }
-    .p-4 { padding: 1rem; }
-    .pt-4 { padding-top: 1rem; }
-    .pb-4 { padding-bottom: 1rem; }
-    .px-4 { padding-left: 1rem; padding-right: 1rem; }
-    .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
-    .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
-    .space-x-4 > :not([hidden]) ~ :not([hidden]) { margin-left: 1rem; }
-    
-    .text-xs { font-size: 0.75rem; line-height: 1rem; }
-    .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
-    .text-base { font-size: 1rem; line-height: 1.5rem; }
-    .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
-    .text-2xl { font-size: 1.5rem; line-height: 2rem; }
-    .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
-    .font-sans { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    .font-mono { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace; }
-    .font-light { font-weight: 300; }
-    .font-semibold { font-weight: 600; }
-    .font-bold { font-weight: 700; }
-    .tracking-widest { letter-spacing: 0.1em; }
-    .uppercase { text-transform: uppercase; }
-    .leading-relaxed { line-height: 1.625; }
-    .text-center { text-align: center; }
-    .text-left { text-align: left; }
-    .text-right { text-align-last: right; }
-
-    .flex { display: flex; }
-    .inline-flex { display: inline-flex; }
-    .block { display: block; }
-    .hidden { display: none; }
-    .flex-col { flex-direction: column; }
-    .items-start { align-items: flex-start; }
-    .items-center { align-items: center; }
-    .justify-center { justify-content: center; }
-    .justify-between { justify-content: space-between; }
-    
-    .relative { position: relative; }
-    .absolute { position: absolute; }
-    .top-0 { top: 0; }
-    .left-0 { left: 0; }
-
-    .rounded-md { border-radius: 0.375rem; }
-    .rounded-full { border-radius: 9999px; }
-    .border { border-width: 1px; }
-    .border-b { border-bottom-width: 1px; }
-    .ring-2 { box-shadow: 0 0 0 2px #fff; }
-    .cursor-pointer { cursor: pointer; }
-    .outline-none { outline: 0; }
-    
-    /* Boutons, Sliders, Toggle Switch, Select styles (CSS Tailwind-like) */
-    /* ... (Gardé pour la mise en page React) ... */
-    .button-primary {
-      background-color: #a3a3a3; 
-      color: #000;
-      padding: 0.5rem 1rem;
-      border-radius: 0.375rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.15s ease-in-out;
-    }
-    .button-primary:hover {
-      background-color: #d4d4d4;
+    /* === LAYOUT === */
+    .container {
+      max-width: 1152px;
+      margin: 0 auto;
+      padding: 1rem;
     }
     
-    input[type=range] {
-      -webkit-appearance: none;
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    
+    @media (min-width: 1024px) {
+      .grid-layout {
+        grid-template-columns: 1fr 2fr;
+      }
+    }
+    
+    /* === HEADER === */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #262626;
+    }
+    
+    .logo h1 {
+      font-size: 1.25rem;
+      font-weight: 300;
+      letter-spacing: 0.05em;
+    }
+    
+    .logo p {
+      color: #737373;
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    
+    .brand {
+      text-align: right;
+    }
+    
+    .brand-name {
+      font-size: 0.75rem;
+      color: #525252;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    
+    .brand-location {
+      font-size: 10px;
+      color: #404040;
+      margin-top: 2px;
+    }
+    
+    /* === BOUTONS === */
+    .btn {
+      display: block;
       width: 100%;
-      height: 0.25rem;
-      border-radius: 9999px; 
-      outline: none;
-      transition: background-color 0.15s ease-in-out;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 1rem; 
-      height: 1rem; 
-      background: #ffffff;
+      padding: 0.75rem 1rem;
+      border-radius: 0.25rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
       cursor: pointer;
-      border-radius: 9999px; 
-      margin-top: -0.375rem; 
-      box-shadow: 0 0 0 2px #000;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
+      text-align: center;
     }
     
-    .toggle-switch {
-        position: relative;
-        display: inline-block;
-        width: 38px;
-        height: 22px;
+    .btn-primary {
+      background: #fff;
+      color: #000;
     }
-    .toggle-switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
+    
+    .btn-primary:hover {
+      background: #e5e5e5;
     }
-    .slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #525252;
-        transition: .4s;
-        border-radius: 22px;
-    }
-    .slider:before {
-        position: absolute;
-        content: "";
-        height: 16px;
-        width: 16px;
-        left: 3px;
-        bottom: 3px;
-        background-color: white;
-        transition: .4s;
-        border-radius: 50%;
-    }
-    input:checked + .slider {
-        background-color: #a3a3a3; 
-    }
-    input:checked + .slider:before {
-        transform: translateX(16px);
-    }
-
-    .custom-select {
-      position: relative;
-      display: inline-block;
-    }
-    .custom-select select {
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-      background-color: #262626;
+    
+    .btn-secondary {
+      background: #171717;
       color: #fff;
-      padding: 0.5rem 2rem 0.5rem 0.75rem;
-      border: 1px solid #404040; 
-      border-radius: 0.375rem;
-      cursor: pointer;
-      font-size: 0.875rem;
+      border-color: #404040;
     }
-    .custom-select::after {
-      content: '▼';
-      position: absolute;
-      top: 50%;
-      right: 0.5rem;
-      transform: translateY(-50%);
+    
+    .btn-secondary:hover {
+      background: #262626;
+      border-color: #525252;
+    }
+    
+    .btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    
+    /* === PANNEAUX === */
+    .panel {
+      background: #0a0a0a;
+      border: 1px solid #262626;
+      border-radius: 0.25rem;
+    }
+    
+    .panel-header {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #262626;
+    }
+    
+    .panel-title {
+      font-size: 0.75rem;
+      font-weight: 500;
       color: #a3a3a3;
-      pointer-events: none;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    
+    .panel-content {
+      padding: 1rem;
+    }
+    
+    /* === LISTE DES FRAMES === */
+    .frames-list {
+      max-height: 256px;
+      overflow-y: auto;
+    }
+    
+    .frame-item {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #171717;
+      transition: background 0.15s ease;
+      cursor: pointer;
+    }
+    
+    .frame-item:last-child {
+      border-bottom: none;
+    }
+    
+    .frame-item:hover {
+      background: #0a0a0a;
+    }
+    
+    .frame-item.selected {
+      background: #171717;
+    }
+    
+    .frame-item.dragging {
+      opacity: 0.5;
+    }
+    
+    /* Poignée de drag */
+    .drag-handle {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 0.75rem 0.5rem;
+      cursor: grab;
+      opacity: 0.4;
+      transition: opacity 0.15s;
+    }
+    
+    .drag-handle:hover {
+      opacity: 1;
+    }
+    
+    .drag-handle:active {
+      cursor: grabbing;
+    }
+    
+    .drag-handle-line {
+      width: 16px;
+      height: 2px;
+      background: #fff;
+      border-radius: 1px;
+    }
+    
+    .frame-number {
+      color: #525252;
+      font-family: monospace;
+      font-size: 0.75rem;
+      width: 24px;
+      text-align: center;
+    }
+    
+    .frame-name {
+      flex: 1;
+      min-width: 0;
+      padding: 0 0.75rem;
+      color: #d4d4d4;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .frame-action {
+      padding: 0.5rem;
+      color: #525252;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: color 0.15s;
       font-size: 0.75rem;
     }
     
+    .frame-action:hover {
+      color: #fff;
+    }
+    
+    .frame-action.delete:hover {
+      color: #ef4444;
+    }
+    
+    /* === MINI WAVEFORM === */
+    .mini-waveform {
+      border-radius: 0.25rem;
+    }
+    
+    /* === SLIDERS === */
+    .slider-group {
+      margin-bottom: 1rem;
+    }
+    
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #737373;
+      margin-bottom: 0.5rem;
+    }
+    
+    .slider-value {
+      color: #fff;
+      font-family: monospace;
+    }
+    
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      background: #262626;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    
+    input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+    
+    input[type="range"]:disabled {
+      opacity: 0.4;
+    }
+    
+    /* === TOGGLE AUTO === */
+    .auto-toggle {
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      border-radius: 0.25rem;
+      border: 1px solid #404040;
+      background: transparent;
+      color: #737373;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .auto-toggle.active {
+      background: #fff;
+      color: #000;
+      border-color: #fff;
+    }
+    
+    /* === VISUALISATION 3D === */
+    .viz-container {
+      background: #000;
+      border: 1px solid #262626;
+      border-radius: 0.25rem;
+      height: 100%;
+    }
+    
+    .viz-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 384px;
+      color: #525252;
+    }
+    
+    .viz-empty-icon {
+      width: 64px;
+      height: 64px;
+      border: 1px solid #262626;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    
+    .viz-empty-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      fill: none;
+    }
+    
+    .viz-content {
+      padding: 1rem;
+    }
+    
+    #canvas3D {
+      width: 100%;
+      border-radius: 0.25rem;
+      background: #000;
+    }
+    
+    /* === SLIDER WT POSITION === */
+    .wt-slider {
+      margin-top: 1rem;
+      padding: 0 0.5rem;
+    }
+    
+    .wt-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .wt-label {
+      color: #737373;
+      font-size: 0.75rem;
+      font-family: monospace;
+      letter-spacing: 0.1em;
+      width: 64px;
+    }
+    
+    .wt-value {
+      color: #fff;
+      font-family: monospace;
+      font-size: 0.75rem;
+      width: 56px;
+      text-align: right;
+    }
+    
+    .wt-range-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      color: #404040;
+      font-size: 10px;
+      font-family: monospace;
+      letter-spacing: 0.1em;
+    }
+    
+    /* === PREVIEW AUDIO === */
+    .preview-section {
+      margin-top: 1.5rem;
+      padding: 1.5rem 0.5rem 0;
+      border-top: 1px solid #262626;
+    }
+    
+    .preview-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .preview-label {
+      color: #737373;
+      font-size: 0.75rem;
+      font-family: monospace;
+      letter-spacing: 0.1em;
+    }
+    
+    /* Bouton Play */
+    .play-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid #525252;
+      background: transparent;
+      color: #a3a3a3;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    
+    .play-btn:hover {
+      border-color: #fff;
+      color: #fff;
+    }
+    
+    .play-btn.playing {
+      background: #fff;
+      border-color: #fff;
+      color: #000;
+    }
+    
+    .play-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    
+    .play-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+    
+    .play-btn .play-icon {
+      margin-left: 4px;
+    }
+    
+    /* Octave selector */
+    .octave-selector {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .octave-label {
+      color: #525252;
+      font-size: 0.75rem;
+      font-family: monospace;
+    }
+    
+    .octave-controls {
+      display: flex;
+      align-items: center;
+    }
+    
+    .octave-btn {
+      width: 28px;
+      height: 28px;
+      border: 1px solid #404040;
+      background: transparent;
+      color: #a3a3a3;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 0.875rem;
+    }
+    
+    .octave-btn:first-child {
+      border-radius: 0.25rem 0 0 0.25rem;
+    }
+    
+    .octave-btn:last-child {
+      border-radius: 0 0.25rem 0.25rem 0;
+    }
+    
+    .octave-btn:hover {
+      background: #262626;
+      color: #fff;
+    }
+    
+    .octave-display {
+      width: 32px;
+      height: 28px;
+      border-top: 1px solid #404040;
+      border-bottom: 1px solid #404040;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-family: monospace;
+      font-size: 0.875rem;
+    }
+    
+    .octave-note {
+      color: #404040;
+      font-size: 10px;
+      font-family: monospace;
+      margin-left: 0.5rem;
+    }
+    
+    /* Filter controls */
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .filter-label {
+      color: #525252;
+      font-size: 0.75rem;
+      font-family: monospace;
+      width: 64px;
+    }
+    
+    .filter-buttons {
+      display: flex;
+    }
+    
+    .filter-btn {
+      padding: 0.375rem 0.75rem;
+      font-size: 10px;
+      font-family: monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: 1px solid #404040;
+      background: transparent;
+      color: #737373;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .filter-btn:first-child {
+      border-radius: 0.25rem 0 0 0.25rem;
+    }
+    
+    .filter-btn:last-child {
+      border-radius: 0 0.25rem 0.25rem 0;
+    }
+    
+    .filter-btn:not(:first-child) {
+      margin-left: -1px;
+    }
+    
+    .filter-btn:hover {
+      border-color: #737373;
+    }
+    
+    .filter-btn.active {
+      background: #fff;
+      color: #000;
+      border-color: #fff;
+    }
+    
+    .filter-freq {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: opacity 0.15s;
+    }
+    
+    .filter-freq.disabled {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+    
+    .filter-freq-value {
+      color: #a3a3a3;
+      font-family: monospace;
+      font-size: 0.75rem;
+      width: 64px;
+      text-align: right;
+    }
+    
+    /* === INFO TEXT === */
+    .info-text {
+      margin-top: 1rem;
+      color: #525252;
+      font-size: 0.75rem;
+      line-height: 1.6;
+    }
+    
+    /* === FOOTER === */
+    footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid #171717;
+      text-align: center;
+    }
+    
+    footer p {
+      color: #404040;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    
+    /* === EMPTY STATE === */
+    .empty-state {
+      padding: 2rem 1rem;
+      text-align: center;
+      color: #525252;
+      font-size: 0.875rem;
+    }
+    
+    /* === FILE INPUT HIDDEN === */
+    .hidden {
+      display: none;
+    }
+    
+    /* === SCROLLBAR === */
+    .frames-list::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .frames-list::-webkit-scrollbar-track {
+      background: #0a0a0a;
+    }
+    
+    .frames-list::-webkit-scrollbar-thumb {
+      background: #404040;
+      border-radius: 3px;
+    }
+    
+    /* === CANVAS CACHÉS === */
+    .processing-canvas {
+      display: none;
+    }
   </style>
 </head>
 <body>
+  <canvas id="processingCanvas" class="processing-canvas"></canvas>
   
-  <div id="app-root">
-    <div class="max-w-7xl mx-auto px-4 min-h-screen flex items-center justify-center">
-        <p class="text-neutral-500">Chargement de l'application...</p>
+  <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
+  
+  <div class="container">
+    <header>
+      <div class="logo">
+        <h1>draw your sounds</h1>
+        <p>Créateur de wavetable</p>
+      </div>
+      <div class="brand">
+        <div class="brand-name">smem</div>
+        <div class="brand-location">Fribourg, CH</div>
+      </div>
+    </header>
+    
+    <div class="grid-layout">
+      <div class="left-panel">
+        <button id="addBtn" class="btn btn-primary">
+          Ajouter des dessins (<span id="frameCount">0</span>/256)
+        </button>
+        
+        <div class="panel" style="margin-top: 1rem;">
+          <div class="panel-header">
+            <h3 class="panel-title">Frames</h3>
+          </div>
+          <div id="framesList" class="frames-list">
+            <div class="empty-state">Aucune frame ajoutée</div>
+          </div>
+        </div>
+        
+        <div id="frameSettings" class="panel" style="margin-top: 1rem; display: none;">
+          <div class="panel-header">
+            <h3 class="panel-title">Paramètres — <span id="selectedFrameName"></span></h3>
+          </div>
+          <div class="panel-content">
+            <div class="slider-group">
+              <div class="slider-label">
+                <span>Seuil de détection</span>
+                <span class="slider-value" id="thresholdValue">128</span>
+              </div>
+              <input type="range" id="thresholdSlider" min="50" max="200" value="128">
+            </div>
+            
+            <div class="slider-group">
+              <div class="slider-label">
+                <span>Lissage <span id="autoLabel">(auto)</span></span>
+                <span class="slider-value" id="smoothValue">10</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <input type="range" id="smoothSlider" min="1" max="30" value="10" style="flex: 1;">
+                <button id="autoToggle" class="auto-toggle active">Auto</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button id="exportBtn" class="btn btn-secondary" style="margin-top: 1rem; display: none;">
+          Exporter la wavetable (<span id="exportFrameCount">0</span> frames)
+        </button>
+      </div>
+      
+      <div class="right-panel">
+        <div class="viz-container">
+          <div id="vizEmpty" class="viz-empty">
+            <div class="viz-empty-icon">
+              <svg viewBox="0 0 24 24" stroke-width="1">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+              </svg>
+            </div>
+            <p>Ajoutez des dessins pour créer votre wavetable</p>
+            <p style="font-size: 0.75rem; color: #404040; margin-top: 0.5rem;">Chaque dessin devient une frame</p>
+          </div>
+          
+          <div id="vizContent" class="viz-content" style="display: none;">
+            <canvas id="canvas3D" width="700" height="400"></canvas>
+            
+            <div class="wt-slider">
+              <div class="wt-slider-row">
+                <span class="wt-label">WT POS</span>
+                <input type="range" id="wtPositionSlider" min="0" max="1" step="0.001" value="0" style="flex: 1;">
+                <span class="wt-value" id="wtPositionValue">0.0%</span>
+              </div>
+              <div class="wt-range-labels">
+                <span>FRAME 1</span>
+                <span id="maxFrameLabel">FRAME 1</span>
+              </div>
+            </div>
+            
+            <div class="preview-section">
+              <div class="preview-row">
+                <span class="preview-label">PREVIEW</span>
+                
+                <button id="playBtn" class="play-btn" disabled>
+                  <svg class="play-icon" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </button>
+                
+                <div class="octave-selector">
+                  <span class="octave-label">OCT</span>
+                  <div class="octave-controls">
+                    <button id="octaveDown" class="octave-btn">−</button>
+                    <div class="octave-display" id="octaveDisplay">3</div>
+                    <button id="octaveUp" class="octave-btn">+</button>
+                  </div>
+                  <span class="octave-note" id="octaveNote">C3</span>
+                </div>
+              </div>
+              
+              <div class="filter-row">
+                <span class="filter-label">FILTER</span>
+                <div class="filter-buttons">
+                  <button class="filter-btn active" data-filter="off">OFF</button>
+                  <button class="filter-btn" data-filter="lpf">LPF</button>
+                  <button class="filter-btn" data-filter="bpf">BPF</button>
+                  <button class="filter-btn" data-filter="hpf">HPF</button>
+                </div>
+                <div class="filter-freq disabled" id="filterFreqContainer">
+                  <input type="range" id="filterFreqSlider" min="100" max="10000" step="10" value="2000" style="flex: 1;">
+                  <span class="filter-freq-value" id="filterFreqValue">2.0k Hz</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div id="infoText" class="info-text" style="display: none;">
+          Format d'export : 2048 échantillons par frame, 16-bit WAV mono.
+          Compatible avec ButterSynth, Serum, Vital et autres synthétiseurs wavetable.
+        </div>
+      </div>
     </div>
+    
+    <footer>
+      <p>Un projet de médiation culturelle du smem — Swiss Museum for Electronic Music Instruments</p>
+    </footer>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/p5@1.4.0/lib/p5.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  
-  <script src="draw-to-wavetable-v3.jsx"></script>
-  
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const container = document.getElementById('app-root');
-      if (container) {
-        // Le composant exporté par draw-to-wavetable-v3.jsx est DrawYourSoundsV3 (export default)
-        // Note: Si vous utilisez babel/webpack, vous n'auriez pas besoin de cette ligne,
-        // mais pour l'exécution directe dans le navigateur, on doit s'assurer que le composant est exposé globalement.
-        // Assuming your JSX file defines DrawYourSoundsV3 globally or is transpiled on the fly.
+    // ============================================================
+    // DRAW YOUR SOUNDS — Version PWA (JavaScript pur)
+    // ============================================================
+    
+    // === CONSTANTES ===
+    const SAMPLES_PER_FRAME = 2048;
+    const MAX_FRAMES = 256;
+    const BASE_NOTE_FREQ = 130.81; // C3
+    const TARGET_VIZ_FRAMES = 48; // Nouvelle constante pour l'affichage 3D
+    
+    // === STATE ===
+    let frames = [];
+    let selectedFrameId = null;
+    let globalThreshold = 128;
+    let globalSmooth = 10;
+    let wtPosition = 0;
+    let draggedIndex = null;
+    
+    // Audio state
+    let isPlaying = false;
+    let octave = 3;
+    let filterType = 'off';
+    let filterFreq = 2000;
+    
+    // Audio refs
+    let audioContext = null;
+    let filterNode = null;
+    let masterGain = null;
+    let scriptNode = null;
+    let currentWaveform = null;
+    let pendingWaveform = null;
+    let phase = 0;
+    let playbackRate = 1;
+    
+    // === DOM ELEMENTS ===
+    const fileInput = document.getElementById('fileInput');
+    const addBtn = document.getElementById('addBtn');
+    const frameCountSpan = document.getElementById('frameCount');
+    const framesList = document.getElementById('framesList');
+    const frameSettings = document.getElementById('frameSettings');
+    const selectedFrameName = document.getElementById('selectedFrameName');
+    const thresholdSlider = document.getElementById('thresholdSlider');
+    const thresholdValue = document.getElementById('thresholdValue');
+    const smoothSlider = document.getElementById('smoothSlider');
+    const smoothValue = document.getElementById('smoothValue');
+    const autoLabel = document.getElementById('autoLabel');
+    const autoToggle = document.getElementById('autoToggle');
+    const exportBtn = document.getElementById('exportBtn');
+    const exportFrameCount = document.getElementById('exportFrameCount');
+    const vizEmpty = document.getElementById('vizEmpty');
+    const vizContent = document.getElementById('vizContent');
+    const canvas3D = document.getElementById('canvas3D');
+    const ctx3D = canvas3D.getContext('2d');
+    const wtPositionSlider = document.getElementById('wtPositionSlider');
+    const wtPositionValue = document.getElementById('wtPositionValue');
+    const maxFrameLabel = document.getElementById('maxFrameLabel');
+    const processingCanvas = document.getElementById('processingCanvas');
+    const processingCtx = processingCanvas.getContext('2d');
+    const playBtn = document.getElementById('playBtn');
+    const octaveDisplay = document.getElementById('octaveDisplay');
+    const octaveNote = document.getElementById('octaveNote');
+    const octaveDown = document.getElementById('octaveDown');
+    const octaveUp = document.getElementById('octaveUp');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const filterFreqContainer = document.getElementById('filterFreqContainer');
+    const filterFreqSlider = document.getElementById('filterFreqSlider');
+    const filterFreqValue = document.getElementById('filterFreqValue');
+    const infoText = document.getElementById('infoText');
+    
+    // ============================================================
+    // INTERPOLATION
+    // ============================================================
+    
+    function interpolateWaveforms(wf1, wf2, t) {
+      const result = new Float32Array(SAMPLES_PER_FRAME);
+      for (let i = 0; i < SAMPLES_PER_FRAME; i++) {
+        result[i] = wf1[i] * (1 - t) + wf2[i] * t;
+      }
+      return result;
+    }
+    
+    function getWaveformAtPosition(position) {
+      if (frames.length === 0) return null;
+      if (frames.length === 1) return frames[0].waveform;
+      
+      const scaledPos = position * (frames.length - 1);
+      const frameIndex = Math.floor(scaledPos);
+      const t = scaledPos - frameIndex;
+      
+      if (frameIndex >= frames.length - 1) {
+        return frames[frames.length - 1].waveform;
+      }
+      
+      return interpolateWaveforms(
+        frames[frameIndex].waveform,
+        frames[frameIndex + 1].waveform,
+        t
+      );
+    }
+    
+    // ============================================================
+    // AUDIO SYSTEM
+    // ============================================================
+    
+    function getAudioContext() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioContext;
+    }
+    
+    function stopAudio() {
+      if (scriptNode) {
+        try {
+          scriptNode.disconnect();
+          scriptNode.onaudioprocess = null;
+        } catch (e) {}
+        scriptNode = null;
+      }
+      
+      if (filterNode) {
+        try { filterNode.disconnect(); } catch (e) {}
+        filterNode = null;
+      }
+      
+      if (masterGain) {
+        try { masterGain.disconnect(); } catch (e) {}
+        masterGain = null;
+      }
+      
+      currentWaveform = null;
+      pendingWaveform = null;
+      phase = 0;
+      
+      isPlaying = false;
+      updatePlayButton();
+    }
+    
+    function updateFilter() {
+      if (!filterNode || !audioContext) return;
+      
+      if (filterType === 'off') {
+        filterNode.type = 'allpass';
+        filterNode.frequency.value = 20000;
+      } else {
+        filterNode.type = filterType === 'lpf' ? 'lowpass' : 
+                         filterType === 'hpf' ? 'highpass' : 'bandpass';
+        filterNode.frequency.value = filterFreq;
+        filterNode.Q.value = filterType === 'bpf' ? 2 : 0.7;
+      }
+    }
+    
+    function playAudio() {
+      if (frames.length === 0) return;
+      
+      const ctx = getAudioContext();
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+      
+      stopAudio();
+      
+      const waveform = getWaveformAtPosition(wtPosition);
+      if (!waveform) return;
+      
+      const frequency = BASE_NOTE_FREQ * Math.pow(2, octave - 3);
+      const rate = (frequency * SAMPLES_PER_FRAME) / ctx.sampleRate;
+      
+      currentWaveform = waveform;
+      pendingWaveform = null;
+      phase = 0;
+      playbackRate = rate;
+      
+      // Créer le filtre
+      filterNode = ctx.createBiquadFilter();
+      
+      // Créer le master gain
+      masterGain = ctx.createGain();
+      masterGain.gain.value = 0.5;
+      
+      // Connecter
+      filterNode.connect(masterGain);
+      masterGain.connect(ctx.destination);
+      
+      // ScriptProcessorNode pour la lecture
+      try {
+        scriptNode = ctx.createScriptProcessor(2048, 0, 1);
+        scriptNode.connect(filterNode);
         
-        // Montage du composant DrawYourSoundsV3 (présumé globalement disponible après le chargement du JSX)
-        // Si le composant n'est pas exposé globalement, cette ligne doit être ajustée.
-        // Puisque draw-to-wavetable-v3.jsx utilise 'export default function DrawYourSoundsV3()',
-        // nous allons supposer pour une exécution directe que le fichier JS le rend disponible.
-        
-        // Pour les fichiers JSX chargés directement, la fonction n'est pas toujours dans la portée globale.
-        // Puisque vous utilisez un bundler/transpiler externe (ou pas du tout), nous utilisons une astuce
-        // pour monter l'application React.
-        
-        // Nous allons nous assurer que le fichier JSX est bien exécuté.
-        // La logique complète est censée être dans 'draw-to-wavetable-v3.jsx'.
-        
-        // Code de montage standard pour React 18:
-        const root = ReactDOM.createRoot(container);
-        
-        // Le composant DrawYourSoundsV3 doit être disponible dans la portée globale
-        // ou être le 'default export' correctement géré.
-        // Pour cette configuration simple, on suppose qu'il est accessible.
-        // Si 'DrawYourSoundsV3' n'est pas défini, cela indiquera un problème de chargement du JSX.
-        if (typeof DrawYourSoundsV3 !== 'undefined') {
-            root.render(
-                React.createElement(DrawYourSoundsV3, null)
-            );
-        } else {
-            console.error("Le composant DrawYourSoundsV3 n'a pas été trouvé. Le fichier draw-to-wavetable-v3.jsx n'est peut-être pas chargé correctement.");
-            container.innerHTML = `<div class="max-w-7xl mx-auto px-4 min-h-screen flex flex-col items-center justify-center">
-                <p class="text-xl text-red-500 mb-4">Erreur de Chargement</p>
-                <p class="text-neutral-400">Le composant React DrawYourSoundsV3 est introuvable. Vérifiez la console pour plus de détails et assurez-vous que le fichier draw-to-wavetable-v3.jsx est accessible.</p>
-            </div>`;
+        scriptNode.onaudioprocess = (e) => {
+          const output = e.outputBuffer.getChannelData(0);
+          const wf = currentWaveform;
+          
+          if (!wf) {
+            for (let i = 0; i < output.length; i++) {
+              output[i] = 0;
+            }
+            return;
+          }
+          
+          for (let i = 0; i < output.length; i++) {
+            const index = phase % SAMPLES_PER_FRAME;
+            const indexFloor = Math.floor(index);
+            const indexCeil = (indexFloor + 1) % SAMPLES_PER_FRAME;
+            const frac = index - indexFloor;
+            
+            output[i] = wf[indexFloor] * (1 - frac) + wf[indexCeil] * frac;
+            
+            phase += playbackRate;
+            
+            // Fin de cycle : changer de waveform si une nouvelle est en attente
+            if (phase >= SAMPLES_PER_FRAME) {
+              phase = phase % SAMPLES_PER_FRAME;
+              if (pendingWaveform) {
+                currentWaveform = pendingWaveform;
+                pendingWaveform = null;
+              }
+            }
+          }
+        };
+      } catch (e) {
+        console.warn('ScriptProcessorNode not available');
+      }
+      
+      updateFilter();
+      
+      isPlaying = true;
+      updatePlayButton();
+    }
+    
+    function queueWaveformChange(newWaveform, frequency) {
+      if (!audioContext) return;
+      
+      pendingWaveform = newWaveform;
+      playbackRate = (frequency * SAMPLES_PER_FRAME) / audioContext.sampleRate;
+    }
+    
+    function togglePlay() {
+      if (isPlaying) {
+        stopAudio();
+      } else {
+        playAudio();
+      }
+    }
+    
+    function updatePlayButton() {
+      playBtn.classList.toggle('playing', isPlaying);
+      playBtn.innerHTML = isPlaying 
+        ? '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>'
+        : '<svg class="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>';
+      playBtn.disabled = frames.length === 0;
+    }
+    
+    // ============================================================
+    // IMAGE PROCESSING
+    // ============================================================
+    
+    function createBinaryMask(pixels, width, height, thresh) {
+      const mask = new Array(width * height);
+      for (let i = 0; i < width * height; i++) {
+        const idx = i * 4;
+        const brightness = (pixels[idx] + pixels[idx + 1] + pixels[idx + 2]) / 3;
+        mask[i] = brightness < thresh;
+      }
+      return mask;
+    }
+    
+    function findBoundingBox(mask, width, height) {
+      let minX = width, maxX = 0, minY = height, maxY = 0;
+      let hasPixels = false;
+      
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          if (mask[y * width + x]) {
+            hasPixels = true;
+            minX = Math.min(minX, x);
+            maxX = Math.max(maxX, x);
+            minY = Math.min(minY, y);
+            maxY = Math.max(maxY, y);
+          }
         }
       }
       
-      // === Service Worker Registration (Gardé de l'original) ===
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('sw.js')
-            .then(reg => console.log('Service Worker registered'))
-            .catch(err => console.log('Service Worker registration failed:', err));
+      return hasPixels ? { minX, maxX, minY, maxY } : null;
+    }
+    
+    function extractCurveMedian(mask, width, height, bounds) {
+      const curve = [];
+      
+      for (let x = bounds.minX; x <= bounds.maxX; x++) {
+        const activeYs = [];
+        for (let y = bounds.minY; y <= bounds.maxY; y++) {
+          if (mask[y * width + x]) {
+            activeYs.push(y);
+          }
+        }
+        
+        if (activeYs.length > 0) {
+          activeYs.sort((a, b) => a - b);
+          const mid = Math.floor(activeYs.length / 2);
+          curve.push(activeYs.length % 2 === 0 
+            ? (activeYs[mid - 1] + activeYs[mid]) / 2 
+            : activeYs[mid]);
+        } else {
+          curve.push(null);
+        }
+      }
+      
+      return curve;
+    }
+    
+    function fillGaps(curve) {
+      const filled = [...curve];
+      
+      let firstValid = -1, lastValid = -1;
+      for (let i = 0; i < filled.length; i++) {
+        if (filled[i] !== null) {
+          if (firstValid === -1) firstValid = i;
+          lastValid = i;
+        }
+      }
+      
+      if (firstValid === -1) return filled;
+      
+      for (let i = 0; i < firstValid; i++) filled[i] = filled[firstValid];
+      for (let i = lastValid + 1; i < filled.length; i++) filled[i] = filled[lastValid];
+      
+      let gapStart = -1;
+      for (let i = firstValid; i <= lastValid; i++) {
+        if (filled[i] === null) {
+          if (gapStart === -1) gapStart = i;
+        } else if (gapStart !== -1) {
+          const startVal = filled[gapStart - 1];
+          const endVal = filled[i];
+          const gapLen = i - gapStart + 1;
+          for (let j = gapStart; j < i; j++) {
+            const t = (j - gapStart + 1) / gapLen;
+            filled[j] = startVal + (endVal - startVal) * t;
+          }
+          gapStart = -1;
+        }
+      }
+      
+      return filled;
+    }
+    
+    function detectAbruptChanges(curve) {
+      if (curve.length < 3) return 0;
+      
+      let maxJump = 0;
+      const range = Math.max(...curve) - Math.min(...curve);
+      
+      for (let i = 1; i < curve.length; i++) {
+        const jump = Math.abs(curve[i] - curve[i - 1]);
+        maxJump = Math.max(maxJump, jump);
+      }
+      
+      return range > 0 ? maxJump / range : 0;
+    }
+    
+    function calculateAutoSmooth(curve) {
+      const abruptness = detectAbruptChanges(curve);
+      if (abruptness > 0.5) return 25;
+      if (abruptness > 0.3) return 18;
+      if (abruptness > 0.2) return 12;
+      if (abruptness > 0.1) return 8;
+      return 5;
+    }
+    
+    function smoothCurve(curve, windowSize) {
+      if (windowSize <= 1) return curve;
+      
+      const smoothed = [];
+      const half = Math.floor(windowSize / 2);
+      const sigma = windowSize / 3;
+      
+      for (let i = 0; i < curve.length; i++) {
+        let sum = 0, weightSum = 0;
+        
+        for (let j = -half; j <= half; j++) {
+          const idx = Math.max(0, Math.min(curve.length - 1, i + j));
+          const weight = Math.exp(-(j * j) / (2 * sigma * sigma));
+          sum += curve[idx] * weight;
+          weightSum += weight;
+        }
+        
+        smoothed.push(sum / weightSum);
+      }
+      
+      return smoothed;
+    }
+    
+    function normalizeCurve(curve) {
+      const min = Math.min(...curve);
+      const max = Math.max(...curve);
+      const center = (min + max) / 2;
+      const range = max - min;
+      
+      if (range === 0) return curve.map(() => 0);
+      
+      return curve.map(y => ((y - center) / (range / 2)) * -1);
+    }
+    
+    function resampleTo2048(waveform) {
+      const result = new Float32Array(SAMPLES_PER_FRAME);
+      
+      for (let i = 0; i < SAMPLES_PER_FRAME; i++) {
+        const pos = (i / SAMPLES_PER_FRAME) * waveform.length;
+        const idx = Math.floor(pos);
+        const frac = pos - idx;
+        
+        const v1 = waveform[idx] || 0;
+        const v2 = waveform[Math.min(idx + 1, waveform.length - 1)] || 0;
+        
+        result[i] = (v1 + (v2 - v1) * frac) * 0.95;
+      }
+      
+      return result;
+    }
+    
+    function processImageWithSettings(image, threshold, smooth, autoSmooth = true) {
+      const width = 600;
+      const height = 200;
+      processingCanvas.width = width;
+      processingCanvas.height = height;
+      
+      processingCtx.fillStyle = '#ffffff';
+      processingCtx.fillRect(0, 0, width, height);
+      processingCtx.drawImage(image, 0, 0, width, height);
+      
+      const imageData = processingCtx.getImageData(0, 0, width, height);
+      const pixels = imageData.data;
+      
+      const mask = createBinaryMask(pixels, width, height, threshold);
+      const bounds = findBoundingBox(mask, width, height);
+      
+      if (!bounds) return null;
+      
+      let curve = extractCurveMedian(mask, width, height, bounds);
+      curve = fillGaps(curve);
+      
+      let smoothValue = smooth;
+      if (autoSmooth) {
+        smoothValue = calculateAutoSmooth(curve);
+      }
+      
+      curve = smoothCurve(curve, smoothValue);
+      curve = smoothCurve(curve, Math.floor(smoothValue / 2));
+      
+      const normalized = normalizeCurve(curve);
+      const waveform = resampleTo2048(normalized);
+      
+      return { waveform, calculatedSmooth: smoothValue };
+    }
+    
+    // ============================================================
+    // FRAME MANAGEMENT
+    // ============================================================
+    
+    function handleFileChange(e) {
+      const files = Array.from(e.target.files);
+      
+      files.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const result = processImageWithSettings(img, globalThreshold, globalSmooth, true);
+            if (result) {
+              if (frames.length >= MAX_FRAMES) {
+                alert(`Maximum ${MAX_FRAMES} frames`);
+                return;
+              }
+              
+              const newFrame = {
+                id: Date.now() + index,
+                image: img,
+                waveform: result.waveform,
+                name: file.name.replace(/\.[^/.]+$/, ''),
+                threshold: globalThreshold,
+                smooth: result.calculatedSmooth,
+                autoSmooth: true
+              };
+              
+              frames.push(newFrame);
+              updateUI();
+            }
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+      
+      // Reset input pour permettre de resélectionner le même fichier
+      fileInput.value = '';
+    }
+    
+    function removeFrame(id) {
+      frames = frames.filter(f => f.id !== id);
+      if (selectedFrameId === id) {
+        selectedFrameId = frames.length > 0 ? frames[0].id : null;
+      }
+      updateUI();
+    }
+    
+    function selectFrame(id) {
+      selectedFrameId = id;
+      updateUI();
+    }
+    
+    function updateFrameSettings(id, threshold, smooth, autoSmooth) {
+      const frame = frames.find(f => f.id === id);
+      if (!frame) return;
+      
+      frame.threshold = threshold;
+      frame.autoSmooth = autoSmooth;
+      
+      const result = processImageWithSettings(frame.image, threshold, smooth, autoSmooth);
+      if (result) {
+        frame.waveform = result.waveform;
+        frame.smooth = result.calculatedSmooth;
+      }
+      
+      updateUI();
+    }
+    
+    // ============================================================
+    // DRAG AND DROP
+    // ============================================================
+    
+    function handleDragStart(e, index) {
+      draggedIndex = index;
+      e.dataTransfer.effectAllowed = 'move';
+      e.target.closest('.frame-item').classList.add('dragging');
+    }
+    
+    function handleDragOver(e, index) {
+      e.preventDefault();
+      if (draggedIndex === null || draggedIndex === index) return;
+      
+      // Réorganiser les frames
+      const draggedFrame = frames[draggedIndex];
+      frames.splice(draggedIndex, 1);
+      frames.splice(index, 0, draggedFrame);
+      draggedIndex = index;
+      
+      renderFramesList();
+    }
+    
+    function handleDragEnd(e) {
+      draggedIndex = null;
+      document.querySelectorAll('.frame-item.dragging').forEach(el => {
+        el.classList.remove('dragging');
+      });
+      updateUI();
+    }
+    
+    // ============================================================
+    // 3D VISUALIZATION
+    // ============================================================
+    
+    function draw3DWavetable() {
+      const width = canvas3D.width;
+      const height = canvas3D.height;
+      const numFramesImported = frames.length; // Nombre de frames réellement importées
+      
+      if (numFramesImported === 0) return;
+      
+      ctx3D.fillStyle = '#000000';
+      ctx3D.fillRect(0, 0, width, height);
+      
+      const originX = 120;
+      const originY = height - 80;
+      const waveWidth = 400;
+      const waveHeight = 80;
+      
+      // La magie pour afficher 48 frames, peu importe le nombre importé
+      const maxFramesToDraw = TARGET_VIZ_FRAMES; // 48
+      
+      // Ajustement de l'espacement Z pour que les 48 frames tiennent visuellement.
+      // On utilise l'espacement original (28) ajusté par un ratio 12/48 (0.25)
+      const zSpacingBase = 28;
+      const zSpacing = zSpacingBase * (12 / maxFramesToDraw);
+      
+      // Position actuelle (pour highlight). On la base sur l'interpolation entre 0 et 47.
+      const currentFrameVizIndex = Math.round(wtPosition * (maxFramesToDraw - 1));
+      
+      // Dessiner les 48 frames de l'arrière vers l'avant
+      for (let f = maxFramesToDraw - 1; f >= 0; f--) {
+        // Position normalisée dans la table d'onde (0 à 1)
+        const normalizedPos = f / (maxFramesToDraw - 1);
+        
+        // Récupérer la forme d'onde INTERPOLÉE à cette position
+        const frameWaveform = getWaveformAtPosition(normalizedPos);
+        if (!frameWaveform) continue;
+        
+        const zOffset = (maxFramesToDraw - 1 - f) * zSpacing;
+        const yBase = originY - zOffset;
+        const isCurrentFrame = f === currentFrameVizIndex;
+        const frameNumberDisplay = f + 1;
+        
+        // Ligne de base
+        ctx3D.strokeStyle = '#333333';
+        ctx3D.lineWidth = 1;
+        ctx3D.beginPath();
+        ctx3D.moveTo(originX + zOffset, yBase);
+        ctx3D.lineTo(originX + zOffset + waveWidth, yBase);
+        ctx3D.stroke();
+        
+        // Waveform
+        ctx3D.beginPath();
+        
+        let waveColor = isCurrentFrame ? '#ffffff' : '#444444';
+        let lineWidth = isCurrentFrame ? 2 : 1;
+        
+        ctx3D.strokeStyle = waveColor;
+        ctx3D.lineWidth = lineWidth;
+        
+        if (isCurrentFrame) {
+          ctx3D.shadowColor = '#ffffff';
+          ctx3D.shadowBlur = 8;
+        }
+        
+        for (let i = 0; i < waveWidth; i++) {
+          const sampleIdx = Math.floor((i / waveWidth) * SAMPLES_PER_FRAME);
+          const x = originX + zOffset + i;
+          const y = yBase - frameWaveform[sampleIdx] * waveHeight; // Utilisation de frameWaveform interpolée
+          
+          if (i === 0) ctx3D.moveTo(x, y);
+          else ctx3D.lineTo(x, y);
+        }
+        
+        ctx3D.stroke();
+        ctx3D.shadowBlur = 0;
+        
+        // Numéro de frame (on affiche seulement le 1er, le dernier, et le courant pour la clarté)
+        if (frameNumberDisplay === 1 || frameNumberDisplay === maxFramesToDraw || isCurrentFrame) {
+            ctx3D.fillStyle = isCurrentFrame ? '#ffffff' : '#666666';
+            ctx3D.font = '11px monospace';
+            ctx3D.fillText(`${frameNumberDisplay}`, originX + zOffset - 25, yBase + 4);
+        }
+      }
+      
+      // Titre
+      ctx3D.fillStyle = '#ffffff';
+      ctx3D.font = 'bold 12px monospace';
+      ctx3D.fillText('WAVETABLE', 10, 22);
+      ctx3D.fillStyle = '#888888';
+      ctx3D.font = '11px monospace';
+      ctx3D.fillText(`${maxFramesToDraw} frames (Importé: ${numFramesImported})`, 95, 22); // Texte mis à jour
+      
+      ctx3D.fillStyle = '#666666';
+      ctx3D.font = '11px monospace';
+      const currentFrameDisplay = currentFrameVizIndex + 1;
+      ctx3D.fillText(`Position: ${(wtPosition * 100).toFixed(1)}%  —  Frame ${currentFrameDisplay}/${maxFramesToDraw}`, 10, 40); // Texte mis à jour
+      
+      // Aperçu de la forme d'onde actuelle
+      const previewX = width - 220;
+      const previewY = height - 70;
+      const previewW = 200;
+      const previewH = 50;
+      
+      ctx3D.strokeStyle = '#333333';
+      ctx3D.lineWidth = 1;
+      ctx3D.strokeRect(previewX, previewY - previewH, previewW, previewH);
+      
+      const currentWave = getWaveformAtPosition(wtPosition);
+      if (currentWave) {
+        ctx3D.beginPath();
+        ctx3D.strokeStyle = '#ffffff';
+        ctx3D.lineWidth = 1.5;
+        ctx3D.shadowColor = '#ffffff';
+        ctx3D.shadowBlur = 6;
+        
+        for (let i = 0; i < previewW; i++) {
+          const sampleIdx = Math.floor((i / previewW) * SAMPLES_PER_FRAME);
+          const x = previewX + i;
+          const y = (previewY - previewH / 2) - currentWave[sampleIdx] * (previewH * 0.4);
+          
+          if (i === 0) ctx3D.moveTo(x, y);
+          else ctx3D.lineTo(x, y);
+        }
+        ctx3D.stroke();
+        ctx3D.shadowBlur = 0;
+      }
+      
+      ctx3D.fillStyle = '#666666';
+      ctx3D.font = '9px monospace';
+      ctx3D.fillText('SORTIE ACTUELLE', previewX, previewY + 12);
+    }
+    
+    // ============================================================
+    // MINI WAVEFORM
+    // ============================================================
+    
+    function drawMiniWaveform(canvas, waveform, isSelected) {
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+      
+      ctx.fillStyle = isSelected ? '#1a1a1a' : '#0a0a0a';
+      ctx.fillRect(0, 0, w, h);
+      
+      ctx.strokeStyle = '#333';
+      ctx.beginPath();
+      ctx.moveTo(0, h/2);
+      ctx.lineTo(w, h/2);
+      ctx.stroke();
+      
+      ctx.strokeStyle = isSelected ? '#ffffff' : '#888888';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      
+      for (let i = 0; i < w; i++) {
+        const idx = Math.floor((i / w) * SAMPLES_PER_FRAME);
+        const y = (h / 2) - (waveform[idx] * h * 0.42);
+        if (i === 0) ctx.moveTo(i, y);
+        else ctx.lineTo(i, y);
+      }
+      
+      ctx.stroke();
+    }
+    
+    // ============================================================
+    // WAV EXPORT
+    // ============================================================
+    
+    function createMultiFrameWav() {
+      if (frames.length === 0) return null;
+      
+      const totalSamples = frames.length * SAMPLES_PER_FRAME;
+      const buffer = new ArrayBuffer(44 + totalSamples * 2);
+      const view = new DataView(buffer);
+      
+      const writeString = (offset, string) => {
+        for (let i = 0; i < string.length; i++) {
+          view.setUint8(offset + i, string.charCodeAt(i));
+        }
+      };
+      
+      writeString(0, 'RIFF');
+      view.setUint32(4, 36 + totalSamples * 2, true);
+      writeString(8, 'WAVE');
+      writeString(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, 44100, true);
+      view.setUint32(28, 88200, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeString(36, 'data');
+      view.setUint32(40, totalSamples * 2, true);
+      
+      let offset = 44;
+      for (const frame of frames) {
+        for (let i = 0; i < SAMPLES_PER_FRAME; i++) {
+          const sample = Math.max(-1, Math.min(1, frame.waveform[i]));
+          view.setInt16(offset, Math.floor(sample * 32767), true);
+          offset += 2;
+        }
+      }
+      
+      return new Blob([buffer], { type: 'audio/wav' });
+    }
+    
+    function downloadMultiFrameWav() {
+      const blob = createMultiFrameWav();
+      if (!blob) return;
+      
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `wavetable_${frames.length}frames_${Date.now()}.wav`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    
+    function downloadSingleFrame(frame) {
+      const buffer = new ArrayBuffer(44 + SAMPLES_PER_FRAME * 2);
+      const view = new DataView(buffer);
+      
+      const writeString = (offset, string) => {
+        for (let i = 0; i < string.length; i++) {
+          view.setUint8(offset + i, string.charCodeAt(i));
+        }
+      };
+      
+      writeString(0, 'RIFF');
+      view.setUint32(4, 36 + SAMPLES_PER_FRAME * 2, true);
+      writeString(8, 'WAVE');
+      writeString(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, 44100, true);
+      view.setUint32(28, 88200, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeString(36, 'data');
+      view.setUint32(40, SAMPLES_PER_FRAME * 2, true);
+      
+      let offset = 44;
+      for (let i = 0; i < SAMPLES_PER_FRAME; i++) {
+        const sample = Math.max(-1, Math.min(1, frame.waveform[i]));
+        view.setInt16(offset, Math.floor(sample * 32767), true);
+        offset += 2;
+      }
+      
+      const blob = new Blob([buffer], { type: 'audio/wav' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${frame.name}_wavetable.wav`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    
+    // ============================================================
+    // UI UPDATE
+    // ============================================================
+    
+    function renderFramesList() {
+      if (frames.length === 0) {
+        framesList.innerHTML = '<div class="empty-state">Aucune frame ajoutée</div>';
+        return;
+      }
+      
+      framesList.innerHTML = frames.map((frame, index) => `
+        <div class="frame-item ${selectedFrameId === frame.id ? 'selected' : ''}" data-id="${frame.id}" data-index="${index}">
+          <div class="drag-handle" draggable="true" data-index="${index}">
+            <div class="drag-handle-line"></div>
+            <div class="drag-handle-line"></div>
+            <div class="drag-handle-line"></div>
+          </div>
+          <span class="frame-number">${index + 1}</span>
+          <canvas class="mini-waveform" width="100" height="40" data-frame-id="${frame.id}"></canvas>
+          <div class="frame-name">${frame.name}</div>
+          <button class="frame-action" data-action="download" data-id="${frame.id}">WAV</button>
+          <button class="frame-action delete" data-action="delete" data-id="${frame.id}">×</button>
+        </div>
+      `).join('');
+      
+      // Dessiner les mini waveforms
+      frames.forEach(frame => {
+        const canvas = framesList.querySelector(`canvas[data-frame-id="${frame.id}"]`);
+        if (canvas) {
+          drawMiniWaveform(canvas, frame.waveform, selectedFrameId === frame.id);
+        }
+      });
+      
+      // Event listeners
+      framesList.querySelectorAll('.frame-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+          if (!e.target.closest('.drag-handle') && !e.target.closest('.frame-action')) {
+            selectFrame(parseInt(item.dataset.id));
+          }
         });
+      });
+      
+      framesList.querySelectorAll('.drag-handle').forEach(handle => {
+        handle.addEventListener('dragstart', (e) => handleDragStart(e, parseInt(handle.dataset.index)));
+        handle.addEventListener('dragend', handleDragEnd);
+      });
+      
+      framesList.querySelectorAll('.frame-item').forEach(item => {
+        item.addEventListener('dragover', (e) => handleDragOver(e, parseInt(item.dataset.index)));
+      });
+      
+      framesList.querySelectorAll('.frame-action').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const id = parseInt(btn.dataset.id);
+          if (btn.dataset.action === 'delete') {
+            removeFrame(id);
+          } else if (btn.dataset.action === 'download') {
+            const frame = frames.find(f => f.id === id);
+            if (frame) downloadSingleFrame(frame);
+          }
+        });
+      });
+    }
+    
+    function updateUI() {
+      // Frame count
+      frameCountSpan.textContent = frames.length;
+      exportFrameCount.textContent = frames.length;
+      
+      // Show/hide elements
+      const hasFrames = frames.length > 0;
+      vizEmpty.style.display = hasFrames ? 'none' : 'flex';
+      vizContent.style.display = hasFrames ? 'block' : 'none';
+      exportBtn.style.display = hasFrames ? 'block' : 'none';
+      infoText.style.display = hasFrames ? 'block' : 'none';
+      
+      // Frame settings
+      const selectedFrame = frames.find(f => f.id === selectedFrameId);
+      frameSettings.style.display = selectedFrame ? 'block' : 'none';
+      
+      if (selectedFrame) {
+        selectedFrameName.textContent = selectedFrame.name;
+        thresholdSlider.value = selectedFrame.threshold;
+        thresholdValue.textContent = selectedFrame.threshold;
+        smoothSlider.value = selectedFrame.smooth;
+        smoothValue.textContent = selectedFrame.smooth;
+        smoothSlider.disabled = selectedFrame.autoSmooth;
+        autoLabel.style.display = selectedFrame.autoSmooth ? 'inline' : 'none';
+        autoToggle.classList.toggle('active', selectedFrame.autoSmooth);
+      }
+      
+      // Update max frame label
+      maxFrameLabel.textContent = `FRAME ${TARGET_VIZ_FRAMES}`; // Toujours 48 pour l'affichage
+      
+      // Render frames list
+      renderFramesList();
+      
+      // Draw 3D visualization
+      if (hasFrames) {
+        draw3DWavetable();
+      }
+      
+      // Update play button state
+      updatePlayButton();
+      
+      // Update audio if playing
+      if (isPlaying && frames.length > 0) {
+        const waveform = getWaveformAtPosition(wtPosition);
+        if (waveform) {
+          const frequency = BASE_NOTE_FREQ * Math.pow(2, octave - 3);
+          queueWaveformChange(waveform, frequency);
+        }
+      }
+    }
+    
+    // ============================================================
+    // EVENT LISTENERS
+    // ============================================================
+    
+    addBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', handleFileChange);
+    exportBtn.addEventListener('click', downloadMultiFrameWav);
+    
+    thresholdSlider.addEventListener('input', (e) => {
+      if (selectedFrameId) {
+        const frame = frames.find(f => f.id === selectedFrameId);
+        if (frame) {
+          updateFrameSettings(selectedFrameId, Number(e.target.value), frame.smooth, frame.autoSmooth);
+        }
       }
     });
+    
+    smoothSlider.addEventListener('input', (e) => {
+      if (selectedFrameId) {
+        const frame = frames.find(f => f.id === selectedFrameId);
+        if (frame) {
+          updateFrameSettings(selectedFrameId, frame.threshold, Number(e.target.value), false);
+        }
+      }
+    });
+    
+    autoToggle.addEventListener('click', () => {
+      if (selectedFrameId) {
+        const frame = frames.find(f => f.id === selectedFrameId);
+        if (frame) {
+          updateFrameSettings(selectedFrameId, frame.threshold, frame.smooth, !frame.autoSmooth);
+        }
+      }
+    });
+    
+    wtPositionSlider.addEventListener('input', (e) => {
+      wtPosition = Number(e.target.value);
+      wtPositionValue.textContent = `${(wtPosition * 100).toFixed(1)}%`;
+      
+      // Update slider background
+      wtPositionSlider.style.background = `linear-gradient(to right, #ffffff 0%, #ffffff ${wtPosition * 100}%, #262626 ${wtPosition * 100}%, #262626 100%)`;
+      
+      draw3DWavetable();
+      
+      if (isPlaying && frames.length > 0) {
+        const waveform = getWaveformAtPosition(wtPosition);
+        if (waveform) {
+          const frequency = BASE_NOTE_FREQ * Math.pow(2, octave - 3);
+          queueWaveformChange(waveform, frequency);
+        }
+      }
+    });
+    
+    playBtn.addEventListener('click', togglePlay);
+    
+    octaveDown.addEventListener('click', () => {
+      if (octave > 0) {
+        octave--;
+        octaveDisplay.textContent = octave;
+        octaveNote.textContent = `C${octave}`;
+        
+        if (isPlaying && frames.length > 0) {
+          const waveform = getWaveformAtPosition(wtPosition);
+          if (waveform) {
+            const frequency = BASE_NOTE_FREQ * Math.pow(2, octave - 3);
+            queueWaveformChange(waveform, frequency);
+          }
+        }
+      }
+    });
+    
+    octaveUp.addEventListener('click', () => {
+      if (octave < 7) {
+        octave++;
+        octaveDisplay.textContent = octave;
+        octaveNote.textContent = `C${octave}`;
+        
+        if (isPlaying && frames.length > 0) {
+          const waveform = getWaveformAtPosition(wtPosition);
+          if (waveform) {
+            const frequency = BASE_NOTE_FREQ * Math.pow(2, octave - 3);
+            queueWaveformChange(waveform, frequency);
+          }
+        }
+      }
+    });
+    
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filterType = btn.dataset.filter;
+        
+        filterFreqContainer.classList.toggle('disabled', filterType === 'off');
+        
+        updateFilter();
+      });
+    });
+    
+    filterFreqSlider.addEventListener('input', (e) => {
+      filterFreq = Number(e.target.value);
+      
+      // Format display
+      if (filterFreq >= 1000) {
+        filterFreqValue.textContent = `${(filterFreq / 1000).toFixed(1)}k Hz`;
+      } else {
+        filterFreqValue.textContent = `${filterFreq} Hz`;
+      }
+      
+      // Update slider background
+      const percent = ((filterFreq - 100) / 9900) * 100;
+      filterFreqSlider.style.background = `linear-gradient(to right, #ffffff 0%, #ffffff ${percent}%, #262626 ${percent}%, #262626 100%)`;
+      
+      updateFilter();
+    });
+    
+    // ============================================================
+    // RESPONSIVE CANVAS
+    // ============================================================
+    
+    function resizeCanvas() {
+      const container = vizContent.parentElement;
+      const maxWidth = container.clientWidth - 32;
+      const aspectRatio = 700 / 400;
+      
+      canvas3D.style.width = '100%';
+      canvas3D.style.maxWidth = maxWidth + 'px';
+      
+      if (frames.length > 0) {
+        draw3DWavetable();
+      }
+    }
+    
+    window.addEventListener('resize', resizeCanvas);
+    
+    // ============================================================
+    // SERVICE WORKER REGISTRATION
+    // ============================================================
+    
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('Service Worker registered'))
+          .catch(err => console.log('Service Worker registration failed:', err));
+      });
+    }
+    
+    // Initial UI
+    updateUI();
+    resizeCanvas();
   </script>
 </body>
 </html>
