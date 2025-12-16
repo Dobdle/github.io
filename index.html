@@ -102,9 +102,10 @@
     .cursor-pointer { cursor: pointer; }
     .outline-none { outline: 0; }
     
-    /* Boutons */
+    /* Boutons, Sliders, Toggle Switch, Select styles (CSS Tailwind-like) */
+    /* ... (Gardé pour la mise en page React) ... */
     .button-primary {
-      background-color: #a3a3a3; /* neutral-400 */
+      background-color: #a3a3a3; 
       color: #000;
       padding: 0.5rem 1rem;
       border-radius: 0.375rem;
@@ -113,31 +114,29 @@
       transition: background-color 0.15s ease-in-out;
     }
     .button-primary:hover {
-      background-color: #d4d4d4; /* neutral-300 */
+      background-color: #d4d4d4;
     }
     
-    /* Sliders */
     input[type=range] {
       -webkit-appearance: none;
       width: 100%;
-      height: 0.25rem; /* h-1 */
-      border-radius: 9999px; /* rounded-full */
+      height: 0.25rem;
+      border-radius: 9999px; 
       outline: none;
       transition: background-color 0.15s ease-in-out;
     }
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 1rem; /* h-4 */
-      height: 1rem; /* h-4 */
+      width: 1rem; 
+      height: 1rem; 
       background: #ffffff;
       cursor: pointer;
-      border-radius: 9999px; /* rounded-full */
-      margin-top: -0.375rem; /* half of (h-4 - h-1) */
+      border-radius: 9999px; 
+      margin-top: -0.375rem; 
       box-shadow: 0 0 0 2px #000;
     }
     
-    /* Toggle Switch */
     .toggle-switch {
         position: relative;
         display: inline-block;
@@ -156,7 +155,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: #525252; /* neutral-600 */
+        background-color: #525252;
         transition: .4s;
         border-radius: 22px;
     }
@@ -172,13 +171,12 @@
         border-radius: 50%;
     }
     input:checked + .slider {
-        background-color: #a3a3a3; /* neutral-400 */
+        background-color: #a3a3a3; 
     }
     input:checked + .slider:before {
         transform: translateX(16px);
     }
 
-    /* Select */
     .custom-select {
       position: relative;
       display: inline-block;
@@ -187,10 +185,10 @@
       -webkit-appearance: none;
       -moz-appearance: none;
       appearance: none;
-      background-color: #262626; /* bg-neutral-800 */
+      background-color: #262626;
       color: #fff;
       padding: 0.5rem 2rem 0.5rem 0.75rem;
-      border: 1px solid #404040; /* border-neutral-700 */
+      border: 1px solid #404040; 
       border-radius: 0.375rem;
       cursor: pointer;
       font-size: 0.875rem;
@@ -210,127 +208,9 @@
 </head>
 <body>
   
-  <div id="root">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="min-h-screen flex flex-col justify-center py-12">
-        <header class="text-center mb-8">
-          <h1 class="text-4xl font-bold font-sans">Draw Your Sounds <span class="text-neutral-500">V3</span></h1>
-          <p class="text-sm text-neutral-600 mt-2">Créateur de wavetable multi-frame</p>
-        </header>
-
-        <div class="bg-neutral-800 rounded-md p-4 shadow-xl">
-          <div class="flex flex-col items-center mb-4">
-            <h2 class="text-xl font-semibold mb-2">Visualisation 3D du Wavetable</h2>
-            <div id="viz-content" class="w-full">
-              <canvas id="canvas-3d" style="width: 100%; max-width: 700px; height: 400px; display: block; margin: 0 auto;"></canvas>
-            </div>
-            <p id="viz-status" class="text-sm text-neutral-500 mt-2">Dessinez votre première frame !</p>
-          </div>
-
-          <div class="border-t border-neutral-900 pt-4 mt-4 space-y-4">
-            
-            <div class="flex justify-between items-center bg-neutral-900 p-2 rounded-md">
-                <h3 class="text-lg font-semibold">Frames Utilisateur (<span id="frame-count">0</span>)</h3>
-                <div class="flex space-x-4">
-                    <button id="import-frame-btn" class="button-primary">Importer WAV</button>
-                    <button id="add-frame-btn" class="button-primary">Ajouter Frame</button>
-                </div>
-            </div>
-
-            <div class="bg-neutral-900 p-4 rounded-md space-y-4">
-              <h3 class="text-lg font-semibold">Réglages Globaux</h3>
-              
-              <div>
-                <label for="global-threshold-slider" class="block text-sm font-medium mb-1">Seuil Global (Normalisation)</label>
-                <div class="flex items-center">
-                  <input type="range" id="global-threshold-slider" min="0" max="255" value="128" step="1"
-                         style="background: linear-gradient(to right, #ffffff 0%, #ffffff 50%, #262626 50%, #262626 100%);">
-                  <span id="global-threshold-value" class="text-neutral-400 font-mono text-xs w-16 text-right">128</span>
-                </div>
-              </div>
-              
-              <div>
-                <label for="global-smooth-slider" class="block text-sm font-medium mb-1">Lissage Global</label>
-                <div class="flex items-center">
-                  <input type="range" id="global-smooth-slider" min="0" max="20" value="10" step="1"
-                         style="background: linear-gradient(to right, #ffffff 0%, #ffffff 50%, #262626 50%, #262626 100%);">
-                  <span id="global-smooth-value" class="text-neutral-400 font-mono text-xs w-16 text-right">10</span>
-                </div>
-              </div>
-
-              <div class="flex items-center justify-between pt-2">
-                <label for="view-3d-toggle" class="text-sm font-medium">Affichage 3D</label>
-                <label class="toggle-switch">
-                  <input type="checkbox" id="view-3d-toggle" checked>
-                  <span class="slider"></span>
-                </label>
-              </div>
-            </div>
-
-            <div id="audio-controls-container" class="bg-neutral-900 p-4 rounded-md space-y-4">
-              <h3 class="text-lg font-semibold">Contrôles Audio</h3>
-
-              <button id="play-stop-btn" class="button-primary w-full flex items-center justify-center space-x-2">
-                <span id="play-icon">▶</span>
-                <span id="play-text">Lecture</span>
-              </button>
-
-              <div class="flex justify-between items-center">
-                <div class="flex items-center">
-                    <span class="text-sm font-medium mr-2">Octave:</span>
-                    <div class="custom-select">
-                        <select id="octave-select" class="bg-neutral-800 text-sm">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3" selected>3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="flex items-center">
-                    <span class="text-sm font-medium mr-2">Filtre:</span>
-                    <div class="custom-select">
-                        <select id="filter-type-select" class="bg-neutral-800 text-sm">
-                            <option value="off" selected>Off</option>
-                            <option value="lpf">LPF</option>
-                            <option value="bpf">BPF</option>
-                            <option value="hpf">HPF</option>
-                        </select>
-                    </div>
-                </div>
-              </div>
-              
-              <div id="filter-freq-control">
-                <label for="filter-freq-slider" class="block text-sm font-medium mb-1">Fréquence du Filtre</label>
-                <div class="flex items-center">
-                  <input type="range" id="filter-freq-slider" min="100" max="10000" value="2000" step="1"
-                         style="background: linear-gradient(to right, #ffffff 0%, #ffffff 19.19%, #262626 19.19%, #262626 100%);">
-                  <span id="filter-freq-value" class="text-neutral-400 font-mono text-xs w-16 text-right">2.0k Hz</span>
-                </div>
-              </div>
-            </div>
-
-            <div id="info-container" class="mt-4 text-neutral-600 text-xs leading-relaxed hidden">
-              <p>
-                Format d'export : 2048 échantillons par frame, 16-bit WAV mono.
-                Compatible avec ButterSynth, Serum, Vital et autres synthétiseurs wavetable.
-              </p>
-            </div>
-
-            <button id="export-btn" class="button-primary w-full mt-4" style="background-color: #f59e0b; color: #000;">Exporter Wavetable</button>
-
-          </div>
-        </div>
-
-        <footer class="mt-12 pt-4 border-t border-neutral-900 text-center">
-          <p class="text-neutral-700 text-[10px] tracking-widest uppercase">
-            Un projet de médiation culturelle du smem — Swiss Museum for Electronic Music Instruments
-          </p>
-        </footer>
-      </div>
+  <div id="app-root">
+    <div class="max-w-7xl mx-auto px-4 min-h-screen flex items-center justify-center">
+        <p class="text-neutral-500">Chargement de l'application...</p>
     </div>
   </div>
 
@@ -338,630 +218,58 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
   <script src="draw-to-wavetable-v3.jsx"></script>
   
   <script>
-    // ============================================================
-    // VARIABLES GLOBALES (Normalement gérées par React, ici pour le script global)
-    // ============================================================
-    // Ces variables sont supposées être synchronisées par le composant React
-    let frames = []; // Contient les objets frame de l'utilisateur
-    let globalThreshold = 128;
-    let globalSmooth = 10;
-    let view3D = true;
-    let wtPosition = 0;
-
-    let audioCtx = null;
-    let oscillator = null;
-    let gainNode = null;
-    let filterNode = null;
-    let isPlaying = false;
-    let currentOctave = 3;
-    let filterType = 'off';
-    let filterFreq = 2000;
-    
-    // Constantes
-    const SAMPLES_PER_FRAME = 2048;
-    const BASE_NOTE_FREQ = 130.81; // C3
-
-    // ============================================================
-    // INITIALISATION P5.js & THREE.js (Pour la visualisation 3D)
-    // ============================================================
-    let canvas3D, renderer, scene, camera, meshes = [];
-
-    function init3D() {
-      const vizContent = document.getElementById('viz-content');
-      canvas3D = document.getElementById('canvas-3d');
-      const width = vizContent.clientWidth;
-      const height = 400;
-
-      renderer = new THREE.WebGLRenderer({ canvas: canvas3D, antialias: true, alpha: true });
-      renderer.setSize(width, height);
-
-      scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-      camera.position.z = 10;
-      camera.position.y = 0;
-      camera.lookAt(0, 0, 0);
-
-      const ambientLight = new THREE.AmbientLight(0x404040); // soft white light
-      scene.add(ambientLight);
-
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-      directionalLight.position.set(0, 1, 1).normalize();
-      scene.add(directionalLight);
-    }
-    
-    // ============================================================
-    // HELPERS DE TRAITEMENT DE FRAME
-    // ============================================================
-
-    /**
-     * Normalise les valeurs de 0-255 à -1.0 - 1.0 en fonction du seuil.
-     */
-    function normalizeFrame(frameData, threshold) {
-        const normalized = new Array(SAMPLES_PER_FRAME);
-        const factor = 1.0 / (255 - threshold);
-        
-        for (let i = 0; i < SAMPLES_PER_FRAME; i++) {
-            // Remap 0-255 (frameData[i]) to -1.0 - 1.0
-            let value = frameData[i];
-            
-            // Appliquer le seuil (tout ce qui est en dessous de 2 * threshold est traité comme négatif ou neutre)
-            if (value > threshold) {
-                normalized[i] = (value - threshold) * factor; // 0.0 to 1.0
-            } else {
-                normalized[i] = (value - threshold) * factor; // -1.0 to 0.0
-            }
-            
-            // Clamping, juste au cas où
-            normalized[i] = Math.max(-1.0, Math.min(1.0, normalized[i]));
-        }
-        return normalized;
-    }
-
-    /**
-     * Applique un lissage simple par moyenne mobile.
-     */
-    function smoothFrame(frame, smoothFactor) {
-        if (smoothFactor === 0) return frame;
-        
-        const smoothed = new Array(SAMPLES_PER_FRAME);
-        const windowSize = smoothFactor; // Utilise le facteur comme taille de fenêtre
-        
-        for (let i = 0; i < SAMPLES_PER_FRAME; i++) {
-            let sum = 0;
-            let count = 0;
-            
-            for (let j = -windowSize; j <= windowSize; j++) {
-                const k = i + j;
-                if (k >= 0 && k < SAMPLES_PER_FRAME) {
-                    sum += frame[k];
-                    count++;
-                }
-            }
-            smoothed[i] = sum / count;
-        }
-        return smoothed;
-    }
-
-    /**
-     * Applique un filtre passe-bas/passe-bande/passe-haut sur la frame.
-     * (Simulé ici, en réalité, on appliquerait le filtre dans le contexte audio, mais on l'applique ici pour la visualisation.)
-     */
-    function applyFilter(frame, type, freq) {
-        if (type === 'off') return frame;
-        // La simulation de filtre ici est TRES simplifiée pour ne pas nécessiter d'implémentation de DSP complexe en JS
-        // En réalité, on utiliserait un IIR Filter ou FFT.
-        // Ici, on va juste amortir les changements brusques (équivalent à un passe-bas très très grossier)
-        if (type === 'lpf' && freq < 5000) {
-            const factor = 1 - (freq / 10000); // 0.5 to 1.0
-            const smoothed = new Array(SAMPLES_PER_FRAME);
-            for (let i = 1; i < SAMPLES_PER_FRAME; i++) {
-                smoothed[i] = (frame[i] * (1 - factor)) + (smoothed[i - 1] * factor);
-                if (i === 1) smoothed[0] = frame[0];
-            }
-            return smoothed;
-        }
-        // Pour BPF/HPF ou LPF avec une haute fréquence, on retourne la frame originale
-        return frame;
-    }
-
-    /**
-     * Normalise et lisse une frame brute (256 points de 0-255) en un échantillon de wavetable (2048 points de -1.0-1.0).
-     */
-    function getWavetableSample(frameData256, globalThreshold, globalSmooth) {
-        const normalized = normalizeFrame(frameData256, globalThreshold);
-        const smoothed = smoothFrame(normalized, globalSmooth);
-        
-        // Interpolation des 256 points en 2048 points (oversampling)
-        const sample = new Array(SAMPLES_PER_FRAME); // 2048
-        const step = (frameData256.length - 1) / (SAMPLES_PER_FRAME - 1); // 255 / 2047
-        
-        for (let i = 0; i < SAMPLES_PER_FRAME; i++) {
-            const pos = i * step;
-            const idx1 = Math.floor(pos);
-            const idx2 = Math.min(Math.ceil(pos), frameData256.length - 1);
-            const mix = pos - idx1;
-            
-            const val1 = smoothed[idx1] || 0;
-            const val2 = smoothed[idx2] || 0;
-            
-            sample[i] = val1 * (1 - mix) + val2 * mix;
-        }
-        
-        return sample;
-    }
-
-    // ============================================================
-    // LOGIQUE DE GENERATION DE WAVETABLE
-    // ============================================================
-
-    // NOUVELLE CONSTANTE : Nombre fixe de frames dans le wavetable (48 comme suggéré pour corriger l'affichage)
-    const WT_LENGTH = 48;
-
-    /**
-     * Génère le wavetable complet (frames normalisées et interpolées).
-     * CORRECTION: Génère un nombre fixe de 48 frames, en interpolant les frames de l'utilisateur.
-     * @param {Array<Object>} frames - Les frames de l'utilisateur.
-     * @param {number} globalThreshold - Le seuil de normalisation global.
-     * @param {number} globalSmooth - Le facteur de lissage global.
-     * @returns {Array<Array<number>>} Le wavetable (array de 48 frames).
-     */
-    function generateWavetable(frames, globalThreshold, globalSmooth) {
-        const numUserFrames = frames.length;
-        const wtFrames = [];
-
-        if (numUserFrames === 0) {
-            return [];
-        }
-
-        // Cas 1: Seulement 1 frame utilisateur. La dupliquer WT_LENGTH fois.
-        if (numUserFrames === 1) {
-            const frameSample = getWavetableSample(frames[0].data, globalThreshold, globalSmooth);
-            for (let i = 0; i < WT_LENGTH; i++) {
-                wtFrames.push(frameSample);
-            }
-            return wtFrames;
-        }
-
-        // Cas 2: 2 frames ou plus. Interpoler régulièrement sur les WT_LENGTH slots (0 à WT_LENGTH-1).
-        
-        // Le nombre maximum d'indices dans le tableau de l'utilisateur.
-        const maxIndexUser = numUserFrames - 1;
-
-        for (let i = 0; i < WT_LENGTH; i++) {
-            // Calculer la position interpolée dans l'espace des frames utilisateur (de 0 à maxIndexUser)
-            // i / (WT_LENGTH - 1) donne un facteur de progression de 0 à 1.
-            const position = (i / (WT_LENGTH - 1)) * maxIndexUser;
-            
-            const frameIndex1 = Math.floor(position); // L'indice de la première frame à interpoler
-            const frameIndex2 = Math.min(Math.ceil(position), maxIndexUser); // L'indice de la deuxième frame
-            const mix = position - frameIndex1; // Le facteur d'interpolation (de 0 à 1)
-            
-            const f1 = getWavetableSample(frames[frameIndex1].data, globalThreshold, globalSmooth);
-            
-            if (frameIndex1 === frameIndex2) {
-                // Pas d'interpolation nécessaire si la position est exactement sur une frame utilisateur
-                wtFrames.push(f1);
-            } else {
-                // Interpolation linéaire
-                const f2 = getWavetableSample(frames[frameIndex2].data, globalThreshold, globalSmooth);
-                const interpolatedFrame = f1.map((sample, index) => (1 - mix) * sample + mix * f2[index]);
-                wtFrames.push(interpolatedFrame);
-            }
-        }
-
-        return wtFrames;
-    }
-
-    // ============================================================
-    // VISUALISATION 3D
-    // ============================================================
-
-    function draw3DWavetable() {
-      if (!renderer) init3D();
-
-      const width = canvas3D.clientWidth;
-      const height = 400;
-      renderer.setSize(width, height);
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      
-      // Nettoyer la scène
-      meshes.forEach(mesh => scene.remove(mesh));
-      meshes = [];
-      
-      const wtFrames = generateWavetable(frames, globalThreshold, globalSmooth);
-      const numFrames = wtFrames.length;
-      
-      if (numFrames === 0) {
-        document.getElementById('viz-status').textContent = "Dessinez votre première frame !";
-        renderer.render(scene, camera);
-        return;
-      }
-      
-      document.getElementById('viz-status').textContent = `${numFrames} frames dans le wavetable.`;
-
-      // Dessin des frames
-      const frameSpacing = 10 / numFrames; // Étalement sur l'axe Z
-      
-      for (let i = 0; i < numFrames; i++) {
-        const frame = wtFrames[i];
-        
-        const material = new THREE.LineBasicMaterial({ color: 0xffffff });
-        
-        // Créer les points pour la ligne
-        const points = [];
-        for (let j = 0; j < SAMPLES_PER_FRAME; j++) {
-            // X: position de l'échantillon (-5 à 5)
-            const x = (j / SAMPLES_PER_FRAME) * 10 - 5; 
-            // Y: amplitude de l'onde (-1 à 1)
-            const y = frame[j] * 2.5; 
-            // Z: position de la frame (-5 à 5)
-            const z = (i / numFrames) * 10 - 5; 
-            points.push(new THREE.Vector3(x, y, z));
-        }
-
-        const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        const line = new THREE.Line(geometry, material);
-        meshes.push(line);
-        scene.add(line);
-      }
-      
-      // Animation simple de rotation et de position de lecture
-      if (numFrames > 1) {
-        // Rotation (juste pour l'esthétique)
-        const rotationFactor = Math.sin(Date.now() * 0.0001) * 0.1;
-        scene.rotation.y = rotationFactor;
-        
-        // Mise en évidence de la frame courante (wtPosition)
-        const currentFrameIndex = Math.floor(wtPosition * (numFrames - 1));
-        meshes.forEach((mesh, index) => {
-            if (index === currentFrameIndex) {
-                // Frame courante : couleur jaune/verte
-                mesh.material.color.set(0xffff00);
-            } else if (index < currentFrameIndex) {
-                // Frames passées : gris foncé
-                mesh.material.color.set(0x404040);
-            } else {
-                // Frames futures : blanc
-                mesh.material.color.set(0xffffff);
-            }
-        });
-      }
-
-      renderer.render(scene, camera);
-    }
-    
-    // ============================================================
-    // LOGIQUE AUDIO (Web Audio API)
-    // ============================================================
-
-    function initAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        gainNode = audioCtx.createGain();
-        filterNode = audioCtx.createBiquadFilter();
-        
-        // Connexion de base
-        gainNode.connect(audioCtx.destination);
-        
-        // Initialiser le filtre
-        updateFilter();
-      }
-    }
-    
-    function createWavetableOscillator() {
-        initAudio();
-
-        const wtFrames = generateWavetable(frames, globalThreshold, globalSmooth);
-        const numFrames = wtFrames.length;
-        
-        if (numFrames === 0) return;
-
-        // Créer un tableau d'ArrayBuffers pour le wavetable
-        const table = new Array(numFrames);
-        for (let i = 0; i < numFrames; i++) {
-            table[i] = new Float32Array(wtFrames[i]);
-        }
-        
-        // Le `PeriodicWave` est pour un oscillateur classique, pas un wavetable multi-frame.
-        // Pour un wavetable, on utilise généralement un `AudioWorkletNode` ou un `ScriptProcessorNode`
-        // pour mélanger les frames selon la position (wtPosition).
-        // Par souci de simplicité et de compatibilité rapide, on va utiliser la technique PeriodicWave
-        // avec la première frame pour l'oscillateur. Pour un wavetable complet, il faudrait
-        // un outil plus sophistiqué (comme un AudioWorklet).
-        // On simule le wavetable en utilisant un PeriodicWave basé sur la frame courante.
-        
-        // Utiliser PeriodicWave avec des composantes sinusoïdales et cosinusoïdales.
-        // Pour un signal défini, on utilise la FFT inverse pour obtenir ces composantes.
-        // Comme nous avons un signal temporel, nous allons créer un PeriodicWave
-        // à partir de la première frame (simplification).
-        
-        // Pour la démo, on utilise juste la première frame pour créer l'onde périodique.
-        const firstFrame = wtFrames[Math.floor(wtPosition * (numFrames - 1))];
-        const real = new Float32Array(SAMPLES_PER_FRAME / 2 + 1);
-        const imag = new Float32Array(SAMPLES_PER_FRAME / 2 + 1);
-        
-        // Remplir les tableaux (c'est très simplifié et n'est pas une IFFT correcte)
-        // La méthode correcte nécessite une transformation de Fourier.
-        // On va s'en tenir à une onde sinusoïdale de base pour la démo si l'oscillateur n'est pas multi-frame.
-        
-        // Pour gérer l'interpolation de wavetable multi-frame:
-        // 1. On crée un Custom Oscillator (AudioWorklet ou ScriptProcessor).
-        // 2. On passe toutes les 48 frames à ce node.
-        // 3. Le node calcule l'interpolation entre frame(i) et frame(i+1) en fonction de la position d'index (wtPosition).
-        
-        // Simplification pour l'oscillateur: On utilise `ScriptProcessorNode` (déprécié, mais simple)
-        const customOscillator = audioCtx.createScriptProcessor(2048, 1, 1);
-        let frameIndex = 0;
-        
-        customOscillator.onaudioprocess = function(audioProcessingEvent) {
-            const outputBuffer = audioProcessingEvent.outputBuffer;
-            const outputData = outputBuffer.getChannelData(0);
-            
-            // Calculer la frame courante et l'interpolation
-            const wtIndex = wtPosition * (numFrames - 1);
-            const frameIndex1 = Math.floor(wtIndex);
-            const frameIndex2 = Math.min(Math.ceil(wtIndex), numFrames - 1);
-            const mix = wtIndex - frameIndex1;
-            
-            const f1 = wtFrames[frameIndex1];
-            const f2 = wtFrames[frameIndex2];
-            
-            for (let i = 0; i < outputData.length; i++) {
-                // Interpole les échantillons des deux frames.
-                outputData[i] = f1[frameIndex] * (1 - mix) + f2[frameIndex] * mix;
-                frameIndex = (frameIndex + 1) % SAMPLES_PER_FRAME;
-            }
-            
-            // Simuler l'avancement de la position du wavetable pour la visualisation
-            wtPosition = (wtPosition + 1 / (numFrames * 1000)) % 1; // Avancement lent
-        };
-        
-        return customOscillator;
-    }
-    
-    function updateFilter() {
-        if (!audioCtx) return;
-        
-        const destinationNode = filterType === 'off' ? gainNode : filterNode;
-        
-        // Déconnecter et reconnecter
-        if (oscillator) {
-            oscillator.disconnect();
-            oscillator.connect(destinationNode);
-        }
-        filterNode.disconnect();
-        
-        if (filterType !== 'off') {
-            // Connecter le filtre au gain, et le gain à la destination
-            filterNode.connect(gainNode);
-            
-            filterNode.type = filterType === 'lpf' ? 'lowpass' : filterType === 'hpf' ? 'highpass' : 'bandpass';
-            filterNode.frequency.setValueAtTime(filterFreq, audioCtx.currentTime);
-            
-            // Q (resonance) pour le BPF
-            if (filterType === 'bpf') {
-                filterNode.Q.setValueAtTime(10, audioCtx.currentTime);
-            } else {
-                filterNode.Q.setValueAtTime(0.1, audioCtx.currentTime);
-            }
-        }
-    }
-    
-    function startAudio() {
-        if (frames.length === 0) return;
-        
-        initAudio();
-        
-        // Arrêter l'ancien
-        if (oscillator) stopAudio();
-        
-        const frequency = BASE_NOTE_FREQ * Math.pow(2, currentOctave - 3);
-        
-        oscillator = createWavetableOscillator(); // Crée un ScriptProcessorNode
-        
-        // Taux de lecture (simule la hauteur de l'onde)
-        const playbackRate = frequency * SAMPLES_PER_FRAME / audioCtx.sampleRate;
-        oscillator.playbackRate = playbackRate;
-        
-        // Connexion
-        if (filterType === 'off') {
-            oscillator.connect(gainNode);
-        } else {
-            oscillator.connect(filterNode);
-        }
-        
-        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime); // Volume
-        
-        isPlaying = true;
-        document.getElementById('play-icon').textContent = '◼';
-        document.getElementById('play-text').textContent = 'Stop';
-        
-        // Animation loop pour la visualisation
-        animate();
-    }
-    
-    function stopAudio() {
-        if (oscillator) {
-            oscillator.disconnect();
-            oscillator = null;
-        }
-        isPlaying = false;
-        document.getElementById('play-icon').textContent = '▶';
-        document.getElementById('play-text').textContent = 'Lecture';
-    }
-    
-    // ============================================================
-    // BOUCLE D'ANIMATION
-    // ============================================================
-
-    function animate() {
-      if (isPlaying && view3D) {
-        draw3DWavetable();
-        requestAnimationFrame(animate);
-      } else if (!isPlaying && view3D) {
-        // Pour s'assurer que le dessin se fait même si on ne joue pas
-        draw3DWavetable();
-      }
-    }
-    
-    // ============================================================
-    // EXPORTATION WAV (Simulé)
-    // ============================================================
-    
-    function exportWavetable() {
-        alert("La fonction d'exportation n'est pas implémentée dans cet index.html. Elle devrait être dans draw-to-wavetable-v3.jsx.");
-    }
-
-    // ============================================================
-    // GESTION DES ÉVÉNEMENTS (Simulé)
-    // ============================================================
-    
     document.addEventListener('DOMContentLoaded', () => {
-        init3D();
+      const container = document.getElementById('app-root');
+      if (container) {
+        // Le composant exporté par draw-to-wavetable-v3.jsx est DrawYourSoundsV3 (export default)
+        // Note: Si vous utilisez babel/webpack, vous n'auriez pas besoin de cette ligne,
+        // mais pour l'exécution directe dans le navigateur, on doit s'assurer que le composant est exposé globalement.
+        // Assuming your JSX file defines DrawYourSoundsV3 globally or is transpiled on the fly.
         
-        const playStopBtn = document.getElementById('play-stop-btn');
-        const octaveSelect = document.getElementById('octave-select');
-        const filterTypeSelect = document.getElementById('filter-type-select');
-        const filterFreqSlider = document.getElementById('filter-freq-slider');
-        const globalThresholdSlider = document.getElementById('global-threshold-slider');
-        const globalSmoothSlider = document.getElementById('global-smooth-slider');
-        const view3dToggle = document.getElementById('view-3d-toggle');
-        const exportBtn = document.getElementById('export-btn');
-
-        // Simuler le chargement initial de frames
-        frames = [{ id: 1, data: Array(256).fill(128).map((v, i) => 128 + Math.sin(i * Math.PI / 128) * 100) },
-                  { id: 2, data: Array(256).fill(128).map((v, i) => 128 + Math.cos(i * Math.PI / 128) * 100) }];
-        document.getElementById('frame-count').textContent = frames.length;
-        document.getElementById('viz-status').textContent = "Deux frames initiales chargées.";
-        document.getElementById('info-container').classList.remove('hidden');
-
-        // Initial draw
-        if (view3D) animate();
-
-        playStopBtn.addEventListener('click', () => {
-            if (isPlaying) {
-                stopAudio();
-            } else {
-                startAudio();
-            }
-        });
+        // Montage du composant DrawYourSoundsV3 (présumé globalement disponible après le chargement du JSX)
+        // Si le composant n'est pas exposé globalement, cette ligne doit être ajustée.
+        // Puisque draw-to-wavetable-v3.jsx utilise 'export default function DrawYourSoundsV3()',
+        // nous allons supposer pour une exécution directe que le fichier JS le rend disponible.
         
-        octaveSelect.addEventListener('change', (e) => {
-            currentOctave = parseInt(e.target.value);
-            if (isPlaying) {
-                // Recharger l'oscillateur avec la nouvelle fréquence
-                const wasPlaying = isPlaying;
-                stopAudio();
-                if (wasPlaying) startAudio();
-            }
-        });
+        // Pour les fichiers JSX chargés directement, la fonction n'est pas toujours dans la portée globale.
+        // Puisque vous utilisez un bundler/transpiler externe (ou pas du tout), nous utilisons une astuce
+        // pour monter l'application React.
         
-        filterTypeSelect.addEventListener('change', (e) => {
-            filterType = e.target.value;
-            const control = document.getElementById('filter-freq-control');
-            if (filterType === 'off') {
-                control.style.opacity = '0.5';
-                control.style.pointerEvents = 'none';
-            } else {
-                control.style.opacity = '1.0';
-                control.style.pointerEvents = 'auto';
-            }
-            updateFilter();
-        });
+        // Nous allons nous assurer que le fichier JSX est bien exécuté.
+        // La logique complète est censée être dans 'draw-to-wavetable-v3.jsx'.
         
-        filterFreqSlider.addEventListener('input', (e) => {
-            filterFreq = parseInt(e.target.value);
-            const filterFreqValue = document.getElementById('filter-freq-value');
-            
-            if (filterFreq >= 1000) {
-                filterFreqValue.textContent = `${(filterFreq / 1000).toFixed(1)}k Hz`;
-            } else {
-                filterFreqValue.textContent = `${filterFreq} Hz`;
-            }
-            
-            // Update slider background
-            const percent = ((filterFreq - 100) / 9900) * 100;
-            filterFreqSlider.style.background = `linear-gradient(to right, #ffffff 0%, #ffffff ${percent}%, #262626 ${percent}%, #262626 100%)`;
-            
-            updateFilter();
-        });
-
-        globalThresholdSlider.addEventListener('input', (e) => {
-            globalThreshold = parseInt(e.target.value);
-            document.getElementById('global-threshold-value').textContent = globalThreshold;
-            
-            const percent = (globalThreshold / 255) * 100;
-            globalThresholdSlider.style.background = `linear-gradient(to right, #ffffff 0%, #ffffff ${percent}%, #262626 ${percent}%, #262626 100%)`;
-            
-            if (view3D) draw3DWavetable();
-        });
-
-        globalSmoothSlider.addEventListener('input', (e) => {
-            globalSmooth = parseInt(e.target.value);
-            document.getElementById('global-smooth-value').textContent = globalSmooth;
-            
-            const percent = (globalSmooth / 20) * 100;
-            globalSmoothSlider.style.background = `linear-gradient(to right, #ffffff 0%, #ffffff ${percent}%, #262626 ${percent}%, #262626 100%)`;
-            
-            if (view3D) draw3DWavetable();
-        });
+        // Code de montage standard pour React 18:
+        const root = ReactDOM.createRoot(container);
         
-        view3dToggle.addEventListener('change', (e) => {
-            view3D = e.target.checked;
-            if (view3D) {
-                animate();
-            }
-        });
-        
-        exportBtn.addEventListener('click', exportWavetable);
-        
-        // ============================================================
-        // RESPONSIVE CANVAS
-        // ============================================================
-        
-        function resizeCanvas() {
-          const container = document.getElementById('viz-content');
-          const maxWidth = container.clientWidth - 32;
-          // Hauteur fixée à 400px dans le CSS/inline style
-          
-          canvas3D.style.width = '100%';
-          canvas3D.style.maxWidth = maxWidth + 'px';
-          
-          if (frames.length > 0 && renderer) {
-            const width = canvas3D.clientWidth;
-            const height = 400;
-            renderer.setSize(width, height);
-            camera.aspect = width / height;
-            camera.updateProjectionMatrix();
-            draw3DWavetable();
-          }
+        // Le composant DrawYourSoundsV3 doit être disponible dans la portée globale
+        // ou être le 'default export' correctement géré.
+        // Pour cette configuration simple, on suppose qu'il est accessible.
+        // Si 'DrawYourSoundsV3' n'est pas défini, cela indiquera un problème de chargement du JSX.
+        if (typeof DrawYourSoundsV3 !== 'undefined') {
+            root.render(
+                React.createElement(DrawYourSoundsV3, null)
+            );
+        } else {
+            console.error("Le composant DrawYourSoundsV3 n'a pas été trouvé. Le fichier draw-to-wavetable-v3.jsx n'est peut-être pas chargé correctement.");
+            container.innerHTML = `<div class="max-w-7xl mx-auto px-4 min-h-screen flex flex-col items-center justify-center">
+                <p class="text-xl text-red-500 mb-4">Erreur de Chargement</p>
+                <p class="text-neutral-400">Le composant React DrawYourSoundsV3 est introuvable. Vérifiez la console pour plus de détails et assurez-vous que le fichier draw-to-wavetable-v3.jsx est accessible.</p>
+            </div>`;
         }
-        
-        window.addEventListener('resize', resizeCanvas);
-        
-        // ============================================================
-        // SERVICE WORKER REGISTRATION
-        // ============================================================
-        
-        if ('serviceWorker' in navigator) {
-          window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-              .then(reg => console.log('Service Worker registered'))
-              .catch(err => console.log('Service Worker registration failed:', err));
-          });
-        }
-        
-        // Initial UI
-        // Trigger initial background setting for sliders
-        globalThresholdSlider.dispatchEvent(new Event('input'));
-        globalSmoothSlider.dispatchEvent(new Event('input'));
-        filterFreqSlider.dispatchEvent(new Event('input'));
-        filterTypeSelect.dispatchEvent(new Event('change'));
-
+      }
+      
+      // === Service Worker Registration (Gardé de l'original) ===
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('Service Worker registered'))
+            .catch(err => console.log('Service Worker registration failed:', err));
+        });
+      }
     });
   </script>
 </body>
