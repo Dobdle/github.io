@@ -187,7 +187,7 @@
       opacity: 0.5;
     }
     
-    /* === DRAG/DROP VISUALS (Correction Request 3) === */
+    /* === DRAG/DROP VISUALS === */
     .frame-item.drag-over-top {
         border-top: 2px solid #fff;
     }
@@ -371,30 +371,41 @@
       padding: 1rem;
     }
     
-    /* === SORTIE ACTUELLE BOX (Correction Request 2) === */
+    /* === SORTIE ACTUELLE BOX (Corrections pour alignement et transparence) === */
     .preview-output-box {
-        float: right;
         text-align: center;
-        margin-left: 1rem;
+        /* Rendu transparent pour ne pas masquer le canvas 3D */
+        background: transparent; 
     }
+    
     .output-label {
         color: #666666;
         font-size: 9px;
         font-family: monospace;
         margin-top: 4px;
     }
+
     #currentWaveCanvas {
         border: 1px solid #333333;
         border-radius: 0.25rem;
+        /* Ajout d'un fond noir pour le canvas d'aperçu */
+        background-color: #000000; 
     }
-    
+
+    /* Le conteneur Flexbox assure l'alignement vertical */
+    #vizHeaderContainer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start; /* Aligne le haut des deux boîtes */
+        margin-bottom: 1rem;
+    }
+
     #canvas3D {
       width: 100%;
       border-radius: 0.25rem;
       background: #000;
-      /* Assurez-vous que le float: right du box d'aperçu est compensé */
-      clear: right; 
-      margin-top: 1rem;
+      /* Marge retirée, aligné sous le nouvel en-tête */
+      margin-top: 0; 
     }
     
     /* === SLIDER WT POSITION === */
@@ -766,11 +777,21 @@
           
           <div id="vizContent" class="viz-content" style="display: none;">
             
-            <div class="preview-output-box">
-                <canvas id="currentWaveCanvas" width="200" height="50"></canvas>
-                <div class="output-label">SORTIE ACTUELLE</div>
+            <div id="vizHeaderContainer" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                
+                <div id="vizTextHeader" style="padding-top: 0.35rem;">
+                    <div id="vizTitle" style="font-weight: bold; font-size: 12px; font-family: monospace; color: #ffffff;">
+                        WAVETABLE <span id="frameSummary" style="font-weight: normal; font-size: 11px; color: #888888; margin-left: 5px;"></span>
+                    </div>
+                    <div id="vizPositionInfo" style="font-size: 11px; font-family: monospace; color: #666666; margin-top: 4px;"></div>
+                </div>
+                
+                <div class="preview-output-box">
+                    <canvas id="currentWaveCanvas" width="200" height="50"></canvas>
+                    <div class="output-label">SORTIE ACTUELLE</div>
+                </div>
             </div>
-            
+
             <canvas id="canvas3D" width="700" height="400"></canvas>
             
             <div class="wt-slider">
@@ -905,6 +926,9 @@
     const filterFreqSlider = document.getElementById('filterFreqSlider');
     const filterFreqValue = document.getElementById('filterFreqValue');
     const infoText = document.getElementById('infoText');
+    // Nouveaux éléments de l'en-tête (Correction Request 2)
+    const frameSummary = document.getElementById('frameSummary');
+    const vizPositionInfo = document.getElementById('vizPositionInfo');
     
     // ============================================================
     // INTERPOLATION
@@ -1364,20 +1388,18 @@
     }
     
     // ============================================================
-    // DRAG AND DROP (Correction Request 3)
+    // DRAG AND DROP
     // ============================================================
     
     function handleDragStart(e, index) {
       draggedIndex = index;
       e.dataTransfer.effectAllowed = 'move';
       e.target.closest('.frame-item').classList.add('dragging');
-      // Pour éviter de voir l'image du drag s'il y a un problème
       e.dataTransfer.setData('text/plain', 'drag'); 
     }
 
-    // Affiche l'indicateur visuel
     function handleDragOver(e, index) {
-      e.preventDefault(); // Permet le drop
+      e.preventDefault(); 
       
       const targetEl = e.currentTarget;
       
@@ -1388,7 +1410,6 @@
       if (draggedIndex !== null && draggedIndex !== index) {
         const rect = targetEl.getBoundingClientRect();
         const y = e.clientY - rect.top;
-        // Si la souris est dans la première moitié, insérer avant
         if (y < rect.height / 2) {
             targetEl.classList.add('drag-over-top');
         } else {
@@ -1397,11 +1418,9 @@
       }
     }
     
-    // Effectue le réarrangement final
     function handleDrop(e, index) {
         e.preventDefault();
         
-        // Nettoyer les classes visuelles
         document.querySelectorAll('.frame-item').forEach(el => {
             el.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom');
         });
@@ -1411,7 +1430,6 @@
         const targetIndex = index;
         let newIndex = targetIndex;
         
-        // Ajuster l'index cible en fonction de l'indicateur visuel
         const targetEl = e.currentTarget;
         if (targetEl.classList.contains('drag-over-bottom')) {
             newIndex = targetIndex + 1;
@@ -1422,13 +1440,12 @@
             return;
         }
 
-        // Effectuer le réarrangement
         const draggedFrame = frames[draggedIndex];
         frames.splice(draggedIndex, 1);
         frames.splice(newIndex > draggedIndex ? newIndex - 1 : newIndex, 0, draggedFrame);
 
         draggedIndex = null;
-        updateUI(); // Mettre à jour l'interface utilisateur une seule fois
+        updateUI();
     }
     
     function handleDragEnd(e) {
@@ -1436,7 +1453,6 @@
       document.querySelectorAll('.frame-item').forEach(el => {
         el.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom');
       });
-      // updateUI n'est pas nécessaire ici, car handleDrop le fait déjà si le drop a réussi.
     }
     
     // ============================================================
@@ -1446,21 +1462,23 @@
     function draw3DWavetable() {
       const width = canvas3D.width;
       const height = canvas3D.height;
-      const numFramesImported = frames.length;
       
-      if (numFramesImported === 0) return;
+      if (frames.length === 0) return;
       
       ctx3D.fillStyle = '#000000';
       ctx3D.fillRect(0, 0, width, height);
       
       const originX = 120;
-      const originY = height - 80;
       const waveWidth = 400;
       const waveHeight = 80;
       
       const maxFramesToDraw = TARGET_VIZ_FRAMES; // 24
-      // Fixé à 12 comme demandé par l'utilisateur
-      const zSpacing = 12; 
+      // Nouvelle valeur densifiée: 10 (Correction Request 3)
+      const zSpacing = 10; 
+      
+      // Le point de base Y de la frame la plus éloignée (f=0)
+      // Height (400) - padding (40) = 360.
+      const originY = height - 40; 
       
       // Position actuelle (pour highlight)
       const currentFrameVizIndex = Math.round(wtPosition * (maxFramesToDraw - 1));
@@ -1474,12 +1492,11 @@
         const frameWaveform = getWaveformAtPosition(normalizedPos);
         if (!frameWaveform) continue;
         
+        // Z-offset (la distance entre la frame actuelle et la frame la plus éloignée)
         const zOffset = (maxFramesToDraw - 1 - f) * zSpacing;
         const yBase = originY - zOffset;
         const isCurrentFrame = f === currentFrameVizIndex;
         const frameNumberDisplay = f + 1;
-        
-        // Ligne de base: RETIRÉ (Correction Request 1)
         
         // Waveform
         ctx3D.beginPath();
@@ -1498,7 +1515,8 @@
         for (let i = 0; i < waveWidth; i++) {
           const sampleIdx = Math.floor((i / waveWidth) * SAMPLES_PER_FRAME);
           const x = originX + zOffset + i;
-          const y = yBase - frameWaveform[sampleIdx] * waveHeight;
+          // Utiliser waveHeight pour mapper l'amplitude
+          const y = yBase - frameWaveform[sampleIdx] * waveHeight; 
           
           if (i === 0) ctx3D.moveTo(x, y);
           else ctx3D.lineTo(x, y);
@@ -1515,24 +1533,16 @@
         }
       }
       
-      // Titre
-      ctx3D.fillStyle = '#ffffff';
-      ctx3D.font = 'bold 12px monospace';
-      ctx3D.fillText('WAVETABLE', 10, 22);
-      ctx3D.fillStyle = '#888888';
-      ctx3D.font = '11px monospace';
-      ctx3D.fillText(`${maxFramesToDraw} frames (Importé: ${numFramesImported})`, 95, 22);
-      
-      ctx3D.fillStyle = '#666666';
-      ctx3D.font = '11px monospace';
+      // Mise à jour de l'en-tête HTML (Correction Request 2)
+      const numFramesImported = frames.length;
       const currentFrameDisplay = currentFrameVizIndex + 1;
-      ctx3D.fillText(`Position: ${(wtPosition * 100).toFixed(1)}%  —  Frame ${currentFrameDisplay}/${maxFramesToDraw}`, 10, 40);
       
-      // L'aperçu de la forme d'onde actuelle est maintenant dessiné par drawCurrentWavePreview()
+      frameSummary.textContent = `${maxFramesToDraw} frames (Importé: ${numFramesImported})`;
+      vizPositionInfo.textContent = `Position: ${(wtPosition * 100).toFixed(1)}% — Frame ${currentFrameDisplay}/${maxFramesToDraw}`;
     }
     
     // ============================================================
-    // CURRENT WAVE PREVIEW (Correction Request 2)
+    // CURRENT WAVE PREVIEW
     // ============================================================
     
     function drawCurrentWavePreview(waveform) {
@@ -1540,6 +1550,7 @@
         const w = currentWaveCanvas.width;
         const h = currentWaveCanvas.height;
         
+        // Dessine le fond noir du canvas d'aperçu
         ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, w, h);
         
@@ -1548,14 +1559,6 @@
         const previewW = w;
         const previewH = h;
         const previewY = previewH / 2;
-        
-        // Ligne de base (Optionnel)
-        // ctx.strokeStyle = '#333333';
-        // ctx.lineWidth = 1;
-        // ctx.beginPath();
-        // ctx.moveTo(0, previewY);
-        // ctx.lineTo(previewW, previewY);
-        // ctx.stroke();
         
         ctx.beginPath();
         ctx.strokeStyle = '#ffffff';
@@ -1747,7 +1750,7 @@
           }
         });
 
-        // Correction du Drag and Drop (Request 3)
+        // Correction du Drag and Drop
         item.addEventListener('dragstart', (e) => handleDragStart(e, parseInt(item.dataset.index)));
         item.addEventListener('dragend', handleDragEnd);
         item.addEventListener('dragover', (e) => handleDragOver(e, parseInt(item.dataset.index)));
@@ -1807,7 +1810,7 @@
       // Draw 3D visualization and preview
       if (hasFrames) {
         draw3DWavetable();
-        drawCurrentWavePreview(getWaveformAtPosition(wtPosition)); // Correction Request 2
+        drawCurrentWavePreview(getWaveformAtPosition(wtPosition));
       } else {
         drawCurrentWavePreview(null);
       }
@@ -1868,7 +1871,7 @@
       wtPositionSlider.style.background = `linear-gradient(to right, #ffffff 0%, #ffffff ${wtPosition * 100}%, #262626 ${wtPosition * 100}%, #262626 100%)`;
       
       draw3DWavetable();
-      drawCurrentWavePreview(getWaveformAtPosition(wtPosition)); // Correction Request 2
+      drawCurrentWavePreview(getWaveformAtPosition(wtPosition)); 
       
       if (isPlaying && frames.length > 0) {
         const waveform = getWaveformAtPosition(wtPosition);
@@ -1958,7 +1961,6 @@
         draw3DWavetable();
       }
       
-      // S'assurer que le preview est redessiné au redimensionnement
       if (frames.length > 0) {
         drawCurrentWavePreview(getWaveformAtPosition(wtPosition));
       }
