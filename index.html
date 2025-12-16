@@ -187,6 +187,14 @@
       opacity: 0.5;
     }
     
+    /* === DRAG/DROP VISUALS (Correction Request 3) === */
+    .frame-item.drag-over-top {
+        border-top: 2px solid #fff;
+    }
+    .frame-item.drag-over-bottom {
+        border-bottom: 2px solid #fff;
+    }
+    
     /* Poignée de drag */
     .drag-handle {
       display: flex;
@@ -363,10 +371,30 @@
       padding: 1rem;
     }
     
+    /* === SORTIE ACTUELLE BOX (Correction Request 2) === */
+    .preview-output-box {
+        float: right;
+        text-align: center;
+        margin-left: 1rem;
+    }
+    .output-label {
+        color: #666666;
+        font-size: 9px;
+        font-family: monospace;
+        margin-top: 4px;
+    }
+    #currentWaveCanvas {
+        border: 1px solid #333333;
+        border-radius: 0.25rem;
+    }
+    
     #canvas3D {
       width: 100%;
       border-radius: 0.25rem;
       background: #000;
+      /* Assurez-vous que le float: right du box d'aperçu est compensé */
+      clear: right; 
+      margin-top: 1rem;
     }
     
     /* === SLIDER WT POSITION === */
@@ -737,6 +765,12 @@
           </div>
           
           <div id="vizContent" class="viz-content" style="display: none;">
+            
+            <div class="preview-output-box">
+                <canvas id="currentWaveCanvas" width="200" height="50"></canvas>
+                <div class="output-label">SORTIE ACTUELLE</div>
+            </div>
+            
             <canvas id="canvas3D" width="700" height="400"></canvas>
             
             <div class="wt-slider">
@@ -810,7 +844,7 @@
     const SAMPLES_PER_FRAME = 2048;
     const MAX_FRAMES = 256;
     const BASE_NOTE_FREQ = 130.81; // C3
-    const TARGET_VIZ_FRAMES = 24; // Nouvelle constante pour l'affichage 3D
+    const TARGET_VIZ_FRAMES = 24; // Fixé à 24 frames pour la visualisation 3D
     
     // === STATE ===
     let frames = [];
@@ -855,6 +889,7 @@
     const vizContent = document.getElementById('vizContent');
     const canvas3D = document.getElementById('canvas3D');
     const ctx3D = canvas3D.getContext('2d');
+    const currentWaveCanvas = document.getElementById('currentWaveCanvas');
     const wtPositionSlider = document.getElementById('wtPositionSlider');
     const wtPositionValue = document.getElementById('wtPositionValue');
     const maxFrameLabel = document.getElementById('maxFrameLabel');
@@ -1329,34 +1364,79 @@
     }
     
     // ============================================================
-    // DRAG AND DROP
+    // DRAG AND DROP (Correction Request 3)
     // ============================================================
     
     function handleDragStart(e, index) {
       draggedIndex = index;
       e.dataTransfer.effectAllowed = 'move';
       e.target.closest('.frame-item').classList.add('dragging');
+      // Pour éviter de voir l'image du drag s'il y a un problème
+      e.dataTransfer.setData('text/plain', 'drag'); 
+    }
+
+    // Affiche l'indicateur visuel
+    function handleDragOver(e, index) {
+      e.preventDefault(); // Permet le drop
+      
+      const targetEl = e.currentTarget;
+      
+      document.querySelectorAll('.frame-item').forEach(item => {
+        item.classList.remove('drag-over-top', 'drag-over-bottom');
+      });
+
+      if (draggedIndex !== null && draggedIndex !== index) {
+        const rect = targetEl.getBoundingClientRect();
+        const y = e.clientY - rect.top;
+        // Si la souris est dans la première moitié, insérer avant
+        if (y < rect.height / 2) {
+            targetEl.classList.add('drag-over-top');
+        } else {
+            targetEl.classList.add('drag-over-bottom');
+        }
+      }
     }
     
-    function handleDragOver(e, index) {
-      e.preventDefault();
-      if (draggedIndex === null || draggedIndex === index) return;
-      
-      // Réorganiser les frames
-      const draggedFrame = frames[draggedIndex];
-      frames.splice(draggedIndex, 1);
-      frames.splice(index, 0, draggedFrame);
-      draggedIndex = index;
-      
-      renderFramesList();
+    // Effectue le réarrangement final
+    function handleDrop(e, index) {
+        e.preventDefault();
+        
+        // Nettoyer les classes visuelles
+        document.querySelectorAll('.frame-item').forEach(el => {
+            el.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom');
+        });
+        
+        if (draggedIndex === null) return;
+        
+        const targetIndex = index;
+        let newIndex = targetIndex;
+        
+        // Ajuster l'index cible en fonction de l'indicateur visuel
+        const targetEl = e.currentTarget;
+        if (targetEl.classList.contains('drag-over-bottom')) {
+            newIndex = targetIndex + 1;
+        }
+
+        if (draggedIndex === newIndex || draggedIndex === newIndex - 1) {
+            draggedIndex = null;
+            return;
+        }
+
+        // Effectuer le réarrangement
+        const draggedFrame = frames[draggedIndex];
+        frames.splice(draggedIndex, 1);
+        frames.splice(newIndex > draggedIndex ? newIndex - 1 : newIndex, 0, draggedFrame);
+
+        draggedIndex = null;
+        updateUI(); // Mettre à jour l'interface utilisateur une seule fois
     }
     
     function handleDragEnd(e) {
       draggedIndex = null;
-      document.querySelectorAll('.frame-item.dragging').forEach(el => {
-        el.classList.remove('dragging');
+      document.querySelectorAll('.frame-item').forEach(el => {
+        el.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom');
       });
-      updateUI();
+      // updateUI n'est pas nécessaire ici, car handleDrop le fait déjà si le drop a réussi.
     }
     
     // ============================================================
@@ -1366,7 +1446,7 @@
     function draw3DWavetable() {
       const width = canvas3D.width;
       const height = canvas3D.height;
-      const numFramesImported = frames.length; // Nombre de frames réellement importées
+      const numFramesImported = frames.length;
       
       if (numFramesImported === 0) return;
       
@@ -1378,19 +1458,14 @@
       const waveWidth = 400;
       const waveHeight = 80;
       
-      // La magie pour afficher 48 frames, peu importe le nombre importé
-      const maxFramesToDraw = TARGET_VIZ_FRAMES; // 48
+      const maxFramesToDraw = TARGET_VIZ_FRAMES; // 24
+      // Fixé à 12 comme demandé par l'utilisateur
+      const zSpacing = 12; 
       
-      // Ajustement de l'espacement Z pour que les 48 frames tiennent visuellement.
-      // On utilise l'espacement original (28) ajusté par un ratio 12/48 (0.25)
-      const zSpacingBase = 12;
-      
-      const zSpacing = zSpacingBase * (12 / maxFramesToDraw);
-      
-      // Position actuelle (pour highlight). On la base sur l'interpolation entre 0 et 47.
+      // Position actuelle (pour highlight)
       const currentFrameVizIndex = Math.round(wtPosition * (maxFramesToDraw - 1));
       
-      // Dessiner les 48 frames de l'arrière vers l'avant
+      // Dessiner les 24 frames de l'arrière vers l'avant
       for (let f = maxFramesToDraw - 1; f >= 0; f--) {
         // Position normalisée dans la table d'onde (0 à 1)
         const normalizedPos = f / (maxFramesToDraw - 1);
@@ -1404,13 +1479,7 @@
         const isCurrentFrame = f === currentFrameVizIndex;
         const frameNumberDisplay = f + 1;
         
-        // Ligne de base
-        ctx3D.strokeStyle = '#333333';
-        ctx3D.lineWidth = 1;
-        ctx3D.beginPath();
-        ctx3D.moveTo(originX + zOffset, yBase);
-        ctx3D.lineTo(originX + zOffset + waveWidth, yBase);
-        ctx3D.stroke();
+        // Ligne de base: RETIRÉ (Correction Request 1)
         
         // Waveform
         ctx3D.beginPath();
@@ -1429,7 +1498,7 @@
         for (let i = 0; i < waveWidth; i++) {
           const sampleIdx = Math.floor((i / waveWidth) * SAMPLES_PER_FRAME);
           const x = originX + zOffset + i;
-          const y = yBase - frameWaveform[sampleIdx] * waveHeight; // Utilisation de frameWaveform interpolée
+          const y = yBase - frameWaveform[sampleIdx] * waveHeight;
           
           if (i === 0) ctx3D.moveTo(x, y);
           else ctx3D.lineTo(x, y);
@@ -1438,7 +1507,7 @@
         ctx3D.stroke();
         ctx3D.shadowBlur = 0;
         
-        // Numéro de frame (on affiche seulement le 1er, le dernier, et le courant pour la clarté)
+        // Numéro de frame
         if (frameNumberDisplay === 1 || frameNumberDisplay === maxFramesToDraw || isCurrentFrame) {
             ctx3D.fillStyle = isCurrentFrame ? '#ffffff' : '#666666';
             ctx3D.font = '11px monospace';
@@ -1452,46 +1521,58 @@
       ctx3D.fillText('WAVETABLE', 10, 22);
       ctx3D.fillStyle = '#888888';
       ctx3D.font = '11px monospace';
-      ctx3D.fillText(`${maxFramesToDraw} frames (Importé: ${numFramesImported})`, 95, 22); // Texte mis à jour
+      ctx3D.fillText(`${maxFramesToDraw} frames (Importé: ${numFramesImported})`, 95, 22);
       
       ctx3D.fillStyle = '#666666';
       ctx3D.font = '11px monospace';
       const currentFrameDisplay = currentFrameVizIndex + 1;
-      ctx3D.fillText(`Position: ${(wtPosition * 100).toFixed(1)}%  —  Frame ${currentFrameDisplay}/${maxFramesToDraw}`, 10, 40); // Texte mis à jour
+      ctx3D.fillText(`Position: ${(wtPosition * 100).toFixed(1)}%  —  Frame ${currentFrameDisplay}/${maxFramesToDraw}`, 10, 40);
       
-      // Aperçu de la forme d'onde actuelle
-      const previewX = width - 220;
-      const previewY = height - 70;
-      const previewW = 200;
-      const previewH = 50;
-      
-      ctx3D.strokeStyle = '#333333';
-      ctx3D.lineWidth = 1;
-      ctx3D.strokeRect(previewX, previewY - previewH, previewW, previewH);
-      
-      const currentWave = getWaveformAtPosition(wtPosition);
-      if (currentWave) {
-        ctx3D.beginPath();
-        ctx3D.strokeStyle = '#ffffff';
-        ctx3D.lineWidth = 1.5;
-        ctx3D.shadowColor = '#ffffff';
-        ctx3D.shadowBlur = 6;
+      // L'aperçu de la forme d'onde actuelle est maintenant dessiné par drawCurrentWavePreview()
+    }
+    
+    // ============================================================
+    // CURRENT WAVE PREVIEW (Correction Request 2)
+    // ============================================================
+    
+    function drawCurrentWavePreview(waveform) {
+        const ctx = currentWaveCanvas.getContext('2d');
+        const w = currentWaveCanvas.width;
+        const h = currentWaveCanvas.height;
+        
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, w, h);
+        
+        if (!waveform) return;
+        
+        const previewW = w;
+        const previewH = h;
+        const previewY = previewH / 2;
+        
+        // Ligne de base (Optionnel)
+        // ctx.strokeStyle = '#333333';
+        // ctx.lineWidth = 1;
+        // ctx.beginPath();
+        // ctx.moveTo(0, previewY);
+        // ctx.lineTo(previewW, previewY);
+        // ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.shadowColor = '#ffffff';
+        ctx.shadowBlur = 6;
         
         for (let i = 0; i < previewW; i++) {
           const sampleIdx = Math.floor((i / previewW) * SAMPLES_PER_FRAME);
-          const x = previewX + i;
-          const y = (previewY - previewH / 2) - currentWave[sampleIdx] * (previewH * 0.4);
+          const x = i;
+          const y = previewY - waveform[sampleIdx] * (previewH * 0.4);
           
-          if (i === 0) ctx3D.moveTo(x, y);
-          else ctx3D.lineTo(x, y);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
         }
-        ctx3D.stroke();
-        ctx3D.shadowBlur = 0;
-      }
-      
-      ctx3D.fillStyle = '#666666';
-      ctx3D.font = '9px monospace';
-      ctx3D.fillText('SORTIE ACTUELLE', previewX, previewY + 12);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
     }
     
     // ============================================================
@@ -1636,8 +1717,8 @@
       }
       
       framesList.innerHTML = frames.map((frame, index) => `
-        <div class="frame-item ${selectedFrameId === frame.id ? 'selected' : ''}" data-id="${frame.id}" data-index="${index}">
-          <div class="drag-handle" draggable="true" data-index="${index}">
+        <div class="frame-item ${selectedFrameId === frame.id ? 'selected' : ''}" draggable="true" data-id="${frame.id}" data-index="${index}">
+          <div class="drag-handle" data-index="${index}">
             <div class="drag-handle-line"></div>
             <div class="drag-handle-line"></div>
             <div class="drag-handle-line"></div>
@@ -1665,15 +1746,15 @@
             selectFrame(parseInt(item.dataset.id));
           }
         });
-      });
-      
-      framesList.querySelectorAll('.drag-handle').forEach(handle => {
-        handle.addEventListener('dragstart', (e) => handleDragStart(e, parseInt(handle.dataset.index)));
-        handle.addEventListener('dragend', handleDragEnd);
-      });
-      
-      framesList.querySelectorAll('.frame-item').forEach(item => {
+
+        // Correction du Drag and Drop (Request 3)
+        item.addEventListener('dragstart', (e) => handleDragStart(e, parseInt(item.dataset.index)));
+        item.addEventListener('dragend', handleDragEnd);
         item.addEventListener('dragover', (e) => handleDragOver(e, parseInt(item.dataset.index)));
+        item.addEventListener('dragleave', (e) => {
+            e.currentTarget.classList.remove('drag-over-top', 'drag-over-bottom');
+        });
+        item.addEventListener('drop', (e) => handleDrop(e, parseInt(item.dataset.index)));
       });
       
       framesList.querySelectorAll('.frame-action').forEach(btn => {
@@ -1718,14 +1799,17 @@
       }
       
       // Update max frame label
-      maxFrameLabel.textContent = `FRAME ${TARGET_VIZ_FRAMES}`; // Toujours 48 pour l'affichage
+      maxFrameLabel.textContent = `FRAME ${TARGET_VIZ_FRAMES}`;
       
       // Render frames list
       renderFramesList();
       
-      // Draw 3D visualization
+      // Draw 3D visualization and preview
       if (hasFrames) {
         draw3DWavetable();
+        drawCurrentWavePreview(getWaveformAtPosition(wtPosition)); // Correction Request 2
+      } else {
+        drawCurrentWavePreview(null);
       }
       
       // Update play button state
@@ -1784,6 +1868,7 @@
       wtPositionSlider.style.background = `linear-gradient(to right, #ffffff 0%, #ffffff ${wtPosition * 100}%, #262626 ${wtPosition * 100}%, #262626 100%)`;
       
       draw3DWavetable();
+      drawCurrentWavePreview(getWaveformAtPosition(wtPosition)); // Correction Request 2
       
       if (isPlaying && frames.length > 0) {
         const waveform = getWaveformAtPosition(wtPosition);
@@ -1871,6 +1956,11 @@
       
       if (frames.length > 0) {
         draw3DWavetable();
+      }
+      
+      // S'assurer que le preview est redessiné au redimensionnement
+      if (frames.length > 0) {
+        drawCurrentWavePreview(getWaveformAtPosition(wtPosition));
       }
     }
     
