@@ -371,10 +371,9 @@
       padding: 1rem;
     }
     
-    /* === SORTIE ACTUELLE BOX (Corrections pour alignement et transparence) === */
+    /* === SORTIE ACTUELLE BOX === */
     .preview-output-box {
         text-align: center;
-        /* Rendu transparent pour ne pas masquer le canvas 3D */
         background: transparent; 
     }
     
@@ -388,15 +387,13 @@
     #currentWaveCanvas {
         border: 1px solid #333333;
         border-radius: 0.25rem;
-        /* Ajout d'un fond noir pour le canvas d'aperçu */
         background-color: #000000; 
     }
 
-    /* Le conteneur Flexbox assure l'alignement vertical */
     #vizHeaderContainer {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start; /* Aligne le haut des deux boîtes */
+        align-items: flex-start;
         margin-bottom: 1rem;
     }
 
@@ -404,7 +401,6 @@
       width: 100%;
       border-radius: 0.25rem;
       background: #000;
-      /* Marge retirée, aligné sous le nouvel en-tête */
       margin-top: 0; 
     }
     
@@ -467,7 +463,6 @@
       letter-spacing: 0.1em;
     }
     
-    /* Bouton Play */
     .play-btn {
       width: 48px;
       height: 48px;
@@ -508,7 +503,6 @@
       margin-left: 4px;
     }
     
-    /* Octave selector */
     .octave-selector {
       display: flex;
       align-items: center;
@@ -570,7 +564,6 @@
       margin-left: 0.5rem;
     }
     
-    /* Filter controls */
     .filter-row {
       display: flex;
       align-items: center;
@@ -644,7 +637,6 @@
       text-align: right;
     }
     
-    /* === INFO TEXT === */
     .info-text {
       margin-top: 1rem;
       color: #525252;
@@ -652,7 +644,6 @@
       line-height: 1.6;
     }
     
-    /* === FOOTER === */
     footer {
       margin-top: 3rem;
       padding-top: 1rem;
@@ -667,7 +658,6 @@
       text-transform: uppercase;
     }
     
-    /* === EMPTY STATE === */
     .empty-state {
       padding: 2rem 1rem;
       text-align: center;
@@ -675,12 +665,10 @@
       font-size: 0.875rem;
     }
     
-    /* === FILE INPUT HIDDEN === */
     .hidden {
       display: none;
     }
     
-    /* === SCROLLBAR === */
     .frames-list::-webkit-scrollbar {
       width: 6px;
     }
@@ -694,7 +682,6 @@
       border-radius: 3px;
     }
     
-    /* === CANVAS CACHÉS === */
     .processing-canvas {
       display: none;
     }
@@ -777,15 +764,13 @@
           
           <div id="vizContent" class="viz-content" style="display: none;">
             
-            <div id="vizHeaderContainer" style="display: flex; justify-content: space-between; align-items: flex-start;">
-                
+            <div id="vizHeaderContainer">
                 <div id="vizTextHeader" style="padding-top: 0.35rem;">
                     <div id="vizTitle" style="font-weight: bold; font-size: 12px; font-family: monospace; color: #ffffff;">
                         WAVETABLE <span id="frameSummary" style="font-weight: normal; font-size: 11px; color: #888888; margin-left: 5px;"></span>
                     </div>
                     <div id="vizPositionInfo" style="font-size: 11px; font-family: monospace; color: #666666; margin-top: 4px;"></div>
                 </div>
-                
                 <div class="preview-output-box">
                     <canvas id="currentWaveCanvas" width="200" height="50"></canvas>
                     <div class="output-label">SORTIE ACTUELLE</div>
@@ -857,31 +842,21 @@
   </div>
 
   <script>
-    // ============================================================
-    // DRAW YOUR SOUNDS — Version PWA (JavaScript pur)
-    // ============================================================
-    
-    // === CONSTANTES ===
     const SAMPLES_PER_FRAME = 2048;
     const MAX_FRAMES = 256;
-    const BASE_NOTE_FREQ = 130.81; // C3
-    const TARGET_VIZ_FRAMES = 24; // Fixé à 24 frames pour la visualisation 3D
+    const BASE_NOTE_FREQ = 130.81;
+    const TARGET_VIZ_FRAMES = 24;
     
-    // === STATE ===
     let frames = [];
     let selectedFrameId = null;
     let globalThreshold = 128;
     let globalSmooth = 10;
     let wtPosition = 0;
     let draggedIndex = null;
-    
-    // Audio state
     let isPlaying = false;
     let octave = 3;
     let filterType = 'off';
     let filterFreq = 2000;
-    
-    // Audio refs
     let audioContext = null;
     let filterNode = null;
     let masterGain = null;
@@ -891,7 +866,6 @@
     let phase = 0;
     let playbackRate = 1;
     
-    // === DOM ELEMENTS ===
     const fileInput = document.getElementById('fileInput');
     const addBtn = document.getElementById('addBtn');
     const frameCountSpan = document.getElementById('frameCount');
@@ -926,13 +900,8 @@
     const filterFreqSlider = document.getElementById('filterFreqSlider');
     const filterFreqValue = document.getElementById('filterFreqValue');
     const infoText = document.getElementById('infoText');
-    // Nouveaux éléments de l'en-tête (Correction Request 2)
     const frameSummary = document.getElementById('frameSummary');
     const vizPositionInfo = document.getElementById('vizPositionInfo');
-    
-    // ============================================================
-    // INTERPOLATION
-    // ============================================================
     
     function interpolateWaveforms(wf1, wf2, t) {
       const result = new Float32Array(SAMPLES_PER_FRAME);
@@ -945,25 +914,14 @@
     function getWaveformAtPosition(position) {
       if (frames.length === 0) return null;
       if (frames.length === 1) return frames[0].waveform;
-      
       const scaledPos = position * (frames.length - 1);
       const frameIndex = Math.floor(scaledPos);
       const t = scaledPos - frameIndex;
-      
       if (frameIndex >= frames.length - 1) {
         return frames[frames.length - 1].waveform;
       }
-      
-      return interpolateWaveforms(
-        frames[frameIndex].waveform,
-        frames[frameIndex + 1].waveform,
-        t
-      );
+      return interpolateWaveforms(frames[frameIndex].waveform, frames[frameIndex + 1].waveform, t);
     }
-    
-    // ============================================================
-    // AUDIO SYSTEM
-    // ============================================================
     
     function getAudioContext() {
       if (!audioContext) {
@@ -980,28 +938,23 @@
         } catch (e) {}
         scriptNode = null;
       }
-      
       if (filterNode) {
         try { filterNode.disconnect(); } catch (e) {}
         filterNode = null;
       }
-      
       if (masterGain) {
         try { masterGain.disconnect(); } catch (e) {}
         masterGain = null;
       }
-      
       currentWaveform = null;
       pendingWaveform = null;
       phase = 0;
-      
       isPlaying = false;
       updatePlayButton();
     }
     
     function updateFilter() {
       if (!filterNode || !audioContext) return;
-      
       if (filterType === 'off') {
         filterNode.type = 'allpass';
         filterNode.frequency.value = 20000;
@@ -1015,63 +968,39 @@
     
     function playAudio() {
       if (frames.length === 0) return;
-      
       const ctx = getAudioContext();
-      if (ctx.state === 'suspended') {
-        ctx.resume();
-      }
-      
+      if (ctx.state === 'suspended') ctx.resume();
       stopAudio();
-      
       const waveform = getWaveformAtPosition(wtPosition);
       if (!waveform) return;
-      
       const frequency = BASE_NOTE_FREQ * Math.pow(2, octave - 3);
       const rate = (frequency * SAMPLES_PER_FRAME) / ctx.sampleRate;
-      
       currentWaveform = waveform;
       pendingWaveform = null;
       phase = 0;
       playbackRate = rate;
-      
-      // Créer le filtre
       filterNode = ctx.createBiquadFilter();
-      
-      // Créer le master gain
       masterGain = ctx.createGain();
       masterGain.gain.value = 0.5;
-      
-      // Connecter
       filterNode.connect(masterGain);
       masterGain.connect(ctx.destination);
-      
-      // ScriptProcessorNode pour la lecture
       try {
         scriptNode = ctx.createScriptProcessor(2048, 0, 1);
         scriptNode.connect(filterNode);
-        
         scriptNode.onaudioprocess = (e) => {
           const output = e.outputBuffer.getChannelData(0);
           const wf = currentWaveform;
-          
           if (!wf) {
-            for (let i = 0; i < output.length; i++) {
-              output[i] = 0;
-            }
+            for (let i = 0; i < output.length; i++) output[i] = 0;
             return;
           }
-          
           for (let i = 0; i < output.length; i++) {
             const index = phase % SAMPLES_PER_FRAME;
             const indexFloor = Math.floor(index);
             const indexCeil = (indexFloor + 1) % SAMPLES_PER_FRAME;
             const frac = index - indexFloor;
-            
             output[i] = wf[indexFloor] * (1 - frac) + wf[indexCeil] * frac;
-            
             phase += playbackRate;
-            
-            // Fin de cycle : changer de waveform si une nouvelle est en attente
             if (phase >= SAMPLES_PER_FRAME) {
               phase = phase % SAMPLES_PER_FRAME;
               if (pendingWaveform) {
@@ -1084,26 +1013,20 @@
       } catch (e) {
         console.warn('ScriptProcessorNode not available');
       }
-      
       updateFilter();
-      
       isPlaying = true;
       updatePlayButton();
     }
     
     function queueWaveformChange(newWaveform, frequency) {
       if (!audioContext) return;
-      
       pendingWaveform = newWaveform;
       playbackRate = (frequency * SAMPLES_PER_FRAME) / audioContext.sampleRate;
     }
     
     function togglePlay() {
-      if (isPlaying) {
-        stopAudio();
-      } else {
-        playAudio();
-      }
+      if (isPlaying) stopAudio();
+      else playAudio();
     }
     
     function updatePlayButton() {
@@ -1114,9 +1037,23 @@
       playBtn.disabled = frames.length === 0;
     }
     
-    // ============================================================
-    // IMAGE PROCESSING
-    // ============================================================
+    function preprocessToBinary(pixels, width, height) {
+      const gray = new Uint8Array(width * height);
+      for (let i = 0; i < gray.length; i++) {
+        const idx = i * 4;
+        gray[i] = (pixels[idx] + pixels[idx + 1] + pixels[idx + 2]) / 3;
+      }
+      const sorted = Array.from(gray).sort((a, b) => a - b);
+      const threshold = sorted[Math.floor(sorted.length / 2)];
+      const binary = new Uint8ClampedArray(pixels.length);
+      for (let i = 0; i < gray.length; i++) {
+        const value = gray[i] < threshold ? 0 : 255;
+        const idx = i * 4;
+        binary[idx] = binary[idx + 1] = binary[idx + 2] = value;
+        binary[idx + 3] = 255;
+      }
+      return binary;
+    }
     
     function createBinaryMask(pixels, width, height, thresh) {
       const mask = new Array(width * height);
@@ -1131,7 +1068,6 @@
     function findBoundingBox(mask, width, height) {
       let minX = width, maxX = 0, minY = height, maxY = 0;
       let hasPixels = false;
-      
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
           if (mask[y * width + x]) {
@@ -1143,13 +1079,11 @@
           }
         }
       }
-      
       return hasPixels ? { minX, maxX, minY, maxY } : null;
     }
     
     function extractCurveMedian(mask, width, height, bounds) {
       const curve = [];
-      
       for (let x = bounds.minX; x <= bounds.maxX; x++) {
         const activeYs = [];
         for (let y = bounds.minY; y <= bounds.maxY; y++) {
@@ -1157,7 +1091,6 @@
             activeYs.push(y);
           }
         }
-        
         if (activeYs.length > 0) {
           activeYs.sort((a, b) => a - b);
           const mid = Math.floor(activeYs.length / 2);
@@ -1168,56 +1101,74 @@
           curve.push(null);
         }
       }
-      
       return curve;
+    }
+    
+    function autoCropAndStretch(curve, targetWidth) {
+      const validIndices = curve.map((v, i) => v !== null ? i : -1).filter(i => i >= 0);
+      if (validIndices.length === 0) return curve;
+      const startIdx = validIndices[0];
+      const endIdx = validIndices[validIndices.length - 1];
+      const croppedCurve = curve.slice(startIdx, endIdx + 1);
+      const stretched = [];
+      for (let x = 0; x < targetWidth; x++) {
+        const pos = (x / targetWidth) * (croppedCurve.length - 1);
+        const idx = Math.floor(pos);
+        const frac = pos - idx;
+        if (idx >= croppedCurve.length - 1) {
+          stretched.push(croppedCurve[croppedCurve.length - 1]);
+        } else {
+          const v1 = croppedCurve[idx];
+          const v2 = croppedCurve[idx + 1];
+          if (v1 !== null && v2 !== null) {
+            stretched.push(v1 + (v2 - v1) * frac);
+          } else if (v1 !== null) {
+            stretched.push(v1);
+          } else if (v2 !== null) {
+            stretched.push(v2);
+          } else {
+            stretched.push(null);
+          }
+        }
+      }
+      return stretched;
     }
     
     function fillGaps(curve) {
       const filled = [...curve];
-      
-      let firstValid = -1, lastValid = -1;
+      let lastValid = null, lastValidIdx = -1;
       for (let i = 0; i < filled.length; i++) {
         if (filled[i] !== null) {
-          if (firstValid === -1) firstValid = i;
-          lastValid = i;
-        }
-      }
-      
-      if (firstValid === -1) return filled;
-      
-      for (let i = 0; i < firstValid; i++) filled[i] = filled[firstValid];
-      for (let i = lastValid + 1; i < filled.length; i++) filled[i] = filled[lastValid];
-      
-      let gapStart = -1;
-      for (let i = firstValid; i <= lastValid; i++) {
-        if (filled[i] === null) {
-          if (gapStart === -1) gapStart = i;
-        } else if (gapStart !== -1) {
-          const startVal = filled[gapStart - 1];
-          const endVal = filled[i];
-          const gapLen = i - gapStart + 1;
-          for (let j = gapStart; j < i; j++) {
-            const t = (j - gapStart + 1) / gapLen;
-            filled[j] = startVal + (endVal - startVal) * t;
+          if (lastValid !== null && i - lastValidIdx > 1) {
+            const gap = i - lastValidIdx;
+            const step = (filled[i] - lastValid) / gap;
+            for (let j = 1; j < gap; j++) {
+              filled[lastValidIdx + j] = lastValid + step * j;
+            }
           }
-          gapStart = -1;
+          lastValid = filled[i];
+          lastValidIdx = i;
         }
       }
-      
+      const firstValid = filled.findIndex(v => v !== null);
+      if (firstValid > 0) {
+        for (let i = 0; i < firstValid; i++) filled[i] = filled[firstValid];
+      }
+      const lastValidFinal = filled.length - 1 - [...filled].reverse().findIndex(v => v !== null);
+      if (lastValidFinal < filled.length - 1) {
+        for (let i = lastValidFinal + 1; i < filled.length; i++) filled[i] = filled[lastValidFinal];
+      }
       return filled;
     }
     
     function detectAbruptChanges(curve) {
       if (curve.length < 3) return 0;
-      
       let maxJump = 0;
       const range = Math.max(...curve) - Math.min(...curve);
-      
       for (let i = 1; i < curve.length; i++) {
         const jump = Math.abs(curve[i] - curve[i - 1]);
         maxJump = Math.max(maxJump, jump);
       }
-      
       return range > 0 ? maxJump / range : 0;
     }
     
@@ -1232,24 +1183,19 @@
     
     function smoothCurve(curve, windowSize) {
       if (windowSize <= 1) return curve;
-      
       const smoothed = [];
       const half = Math.floor(windowSize / 2);
       const sigma = windowSize / 3;
-      
       for (let i = 0; i < curve.length; i++) {
         let sum = 0, weightSum = 0;
-        
         for (let j = -half; j <= half; j++) {
           const idx = Math.max(0, Math.min(curve.length - 1, i + j));
           const weight = Math.exp(-(j * j) / (2 * sigma * sigma));
           sum += curve[idx] * weight;
           weightSum += weight;
         }
-        
         smoothed.push(sum / weightSum);
       }
-      
       return smoothed;
     }
     
@@ -1258,26 +1204,20 @@
       const max = Math.max(...curve);
       const center = (min + max) / 2;
       const range = max - min;
-      
       if (range === 0) return curve.map(() => 0);
-      
       return curve.map(y => ((y - center) / (range / 2)) * -1);
     }
     
     function resampleTo2048(waveform) {
       const result = new Float32Array(SAMPLES_PER_FRAME);
-      
       for (let i = 0; i < SAMPLES_PER_FRAME; i++) {
         const pos = (i / SAMPLES_PER_FRAME) * waveform.length;
         const idx = Math.floor(pos);
         const frac = pos - idx;
-        
         const v1 = waveform[idx] || 0;
         const v2 = waveform[Math.min(idx + 1, waveform.length - 1)] || 0;
-        
         result[i] = (v1 + (v2 - v1) * frac) * 0.95;
       }
-      
       return result;
     }
     
@@ -1286,43 +1226,31 @@
       const height = 200;
       processingCanvas.width = width;
       processingCanvas.height = height;
-      
       processingCtx.fillStyle = '#ffffff';
       processingCtx.fillRect(0, 0, width, height);
       processingCtx.drawImage(image, 0, 0, width, height);
-      
       const imageData = processingCtx.getImageData(0, 0, width, height);
       const pixels = imageData.data;
-      
-      const mask = createBinaryMask(pixels, width, height, threshold);
+      const binaryPixels = preprocessToBinary(pixels, width, height);
+      const mask = createBinaryMask(binaryPixels, width, height, threshold);
       const bounds = findBoundingBox(mask, width, height);
-      
       if (!bounds) return null;
-      
       let curve = extractCurveMedian(mask, width, height, bounds);
+      curve = autoCropAndStretch(curve, width);
       curve = fillGaps(curve);
-      
       let smoothValue = smooth;
       if (autoSmooth) {
         smoothValue = calculateAutoSmooth(curve);
       }
-      
       curve = smoothCurve(curve, smoothValue);
       curve = smoothCurve(curve, Math.floor(smoothValue / 2));
-      
       const normalized = normalizeCurve(curve);
       const waveform = resampleTo2048(normalized);
-      
       return { waveform, calculatedSmooth: smoothValue };
     }
     
-    // ============================================================
-    // FRAME MANAGEMENT
-    // ============================================================
-    
     function handleFileChange(e) {
       const files = Array.from(e.target.files);
-      
       files.forEach((file, index) => {
         const reader = new FileReader();
         reader.onload = (event) => {
@@ -1334,7 +1262,6 @@
                 alert(`Maximum ${MAX_FRAMES} frames`);
                 return;
               }
-              
               const newFrame = {
                 id: Date.now() + index,
                 image: img,
@@ -1344,7 +1271,6 @@
                 smooth: result.calculatedSmooth,
                 autoSmooth: true
               };
-              
               frames.push(newFrame);
               updateUI();
             }
@@ -1353,8 +1279,6 @@
         };
         reader.readAsDataURL(file);
       });
-      
-      // Reset input pour permettre de resélectionner le même fichier
       fileInput.value = '';
     }
     
@@ -1374,22 +1298,15 @@
     function updateFrameSettings(id, threshold, smooth, autoSmooth) {
       const frame = frames.find(f => f.id === id);
       if (!frame) return;
-      
       frame.threshold = threshold;
       frame.autoSmooth = autoSmooth;
-      
       const result = processImageWithSettings(frame.image, threshold, smooth, autoSmooth);
       if (result) {
         frame.waveform = result.waveform;
         frame.smooth = result.calculatedSmooth;
       }
-      
       updateUI();
     }
-    
-    // ============================================================
-    // DRAG AND DROP
-    // ============================================================
     
     function handleDragStart(e, index) {
       draggedIndex = index;
@@ -1400,13 +1317,10 @@
 
     function handleDragOver(e, index) {
       e.preventDefault(); 
-      
       const targetEl = e.currentTarget;
-      
       document.querySelectorAll('.frame-item').forEach(item => {
         item.classList.remove('drag-over-top', 'drag-over-bottom');
       });
-
       if (draggedIndex !== null && draggedIndex !== index) {
         const rect = targetEl.getBoundingClientRect();
         const y = e.clientY - rect.top;
@@ -1420,30 +1334,23 @@
     
     function handleDrop(e, index) {
         e.preventDefault();
-        
         document.querySelectorAll('.frame-item').forEach(el => {
             el.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom');
         });
-        
         if (draggedIndex === null) return;
-        
         const targetIndex = index;
         let newIndex = targetIndex;
-        
         const targetEl = e.currentTarget;
         if (targetEl.classList.contains('drag-over-bottom')) {
             newIndex = targetIndex + 1;
         }
-
         if (draggedIndex === newIndex || draggedIndex === newIndex - 1) {
             draggedIndex = null;
             return;
         }
-
         const draggedFrame = frames[draggedIndex];
         frames.splice(draggedIndex, 1);
         frames.splice(newIndex > draggedIndex ? newIndex - 1 : newIndex, 0, draggedFrame);
-
         draggedIndex = null;
         updateUI();
     }
@@ -1455,122 +1362,76 @@
       });
     }
     
-    // ============================================================
-    // 3D VISUALIZATION
-    // ============================================================
-    
     function draw3DWavetable() {
       const width = canvas3D.width;
       const height = canvas3D.height;
-      
       if (frames.length === 0) return;
-      
       ctx3D.fillStyle = '#000000';
       ctx3D.fillRect(0, 0, width, height);
-      
       const originX = 120;
       const waveWidth = 400;
       const waveHeight = 80;
-      
-      const maxFramesToDraw = TARGET_VIZ_FRAMES; // 24
-      // Nouvelle valeur densifiée: 10 (Correction Request 3)
+      const maxFramesToDraw = TARGET_VIZ_FRAMES;
       const zSpacing = 10; 
-      
-      // Le point de base Y de la frame la plus éloignée (f=0)
-      // Height (400) - padding (40) = 360.
       const originY = height - 40; 
-      
-      // Position actuelle (pour highlight)
       const currentFrameVizIndex = Math.round(wtPosition * (maxFramesToDraw - 1));
-      
-      // Dessiner les 24 frames de l'arrière vers l'avant
       for (let f = maxFramesToDraw - 1; f >= 0; f--) {
-        // Position normalisée dans la table d'onde (0 à 1)
         const normalizedPos = f / (maxFramesToDraw - 1);
-        
-        // Récupérer la forme d'onde INTERPOLÉE à cette position
         const frameWaveform = getWaveformAtPosition(normalizedPos);
         if (!frameWaveform) continue;
-        
-        // Z-offset (la distance entre la frame actuelle et la frame la plus éloignée)
         const zOffset = (maxFramesToDraw - 1 - f) * zSpacing;
         const yBase = originY - zOffset;
         const isCurrentFrame = f === currentFrameVizIndex;
         const frameNumberDisplay = f + 1;
-        
-        // Waveform
         ctx3D.beginPath();
-        
         let waveColor = isCurrentFrame ? '#ffffff' : '#444444';
         let lineWidth = isCurrentFrame ? 2 : 1;
-        
         ctx3D.strokeStyle = waveColor;
         ctx3D.lineWidth = lineWidth;
-        
         if (isCurrentFrame) {
           ctx3D.shadowColor = '#ffffff';
           ctx3D.shadowBlur = 8;
         }
-        
         for (let i = 0; i < waveWidth; i++) {
           const sampleIdx = Math.floor((i / waveWidth) * SAMPLES_PER_FRAME);
           const x = originX + zOffset + i;
-          // Utiliser waveHeight pour mapper l'amplitude
           const y = yBase - frameWaveform[sampleIdx] * waveHeight; 
-          
           if (i === 0) ctx3D.moveTo(x, y);
           else ctx3D.lineTo(x, y);
         }
-        
         ctx3D.stroke();
         ctx3D.shadowBlur = 0;
-        
-        // Numéro de frame
         if (frameNumberDisplay === 1 || frameNumberDisplay === maxFramesToDraw || isCurrentFrame) {
             ctx3D.fillStyle = isCurrentFrame ? '#ffffff' : '#666666';
             ctx3D.font = '11px monospace';
             ctx3D.fillText(`${frameNumberDisplay}`, originX + zOffset - 25, yBase + 4);
         }
       }
-      
-      // Mise à jour de l'en-tête HTML (Correction Request 2)
       const numFramesImported = frames.length;
       const currentFrameDisplay = currentFrameVizIndex + 1;
-      
       frameSummary.textContent = `${maxFramesToDraw} frames (Importé: ${numFramesImported})`;
       vizPositionInfo.textContent = `Position: ${(wtPosition * 100).toFixed(1)}% — Frame ${currentFrameDisplay}/${maxFramesToDraw}`;
     }
-    
-    // ============================================================
-    // CURRENT WAVE PREVIEW
-    // ============================================================
     
     function drawCurrentWavePreview(waveform) {
         const ctx = currentWaveCanvas.getContext('2d');
         const w = currentWaveCanvas.width;
         const h = currentWaveCanvas.height;
-        
-        // Dessine le fond noir du canvas d'aperçu
         ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, w, h);
-        
         if (!waveform) return;
-        
         const previewW = w;
         const previewH = h;
         const previewY = previewH / 2;
-        
         ctx.beginPath();
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 1.5;
         ctx.shadowColor = '#ffffff';
         ctx.shadowBlur = 6;
-        
         for (let i = 0; i < previewW; i++) {
           const sampleIdx = Math.floor((i / previewW) * SAMPLES_PER_FRAME);
           const x = i;
           const y = previewY - waveform[sampleIdx] * (previewH * 0.4);
-          
           if (i === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
@@ -1578,55 +1439,39 @@
         ctx.shadowBlur = 0;
     }
     
-    // ============================================================
-    // MINI WAVEFORM
-    // ============================================================
-    
     function drawMiniWaveform(canvas, waveform, isSelected) {
       const ctx = canvas.getContext('2d');
       const w = canvas.width;
       const h = canvas.height;
-      
       ctx.fillStyle = isSelected ? '#1a1a1a' : '#0a0a0a';
       ctx.fillRect(0, 0, w, h);
-      
       ctx.strokeStyle = '#333';
       ctx.beginPath();
       ctx.moveTo(0, h/2);
       ctx.lineTo(w, h/2);
       ctx.stroke();
-      
       ctx.strokeStyle = isSelected ? '#ffffff' : '#888888';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      
       for (let i = 0; i < w; i++) {
         const idx = Math.floor((i / w) * SAMPLES_PER_FRAME);
         const y = (h / 2) - (waveform[idx] * h * 0.42);
         if (i === 0) ctx.moveTo(i, y);
         else ctx.lineTo(i, y);
       }
-      
       ctx.stroke();
     }
     
-    // ============================================================
-    // WAV EXPORT
-    // ============================================================
-    
     function createMultiFrameWav() {
       if (frames.length === 0) return null;
-      
       const totalSamples = frames.length * SAMPLES_PER_FRAME;
       const buffer = new ArrayBuffer(44 + totalSamples * 2);
       const view = new DataView(buffer);
-      
       const writeString = (offset, string) => {
         for (let i = 0; i < string.length; i++) {
           view.setUint8(offset + i, string.charCodeAt(i));
         }
       };
-      
       writeString(0, 'RIFF');
       view.setUint32(4, 36 + totalSamples * 2, true);
       writeString(8, 'WAVE');
@@ -1640,7 +1485,6 @@
       view.setUint16(34, 16, true);
       writeString(36, 'data');
       view.setUint32(40, totalSamples * 2, true);
-      
       let offset = 44;
       for (const frame of frames) {
         for (let i = 0; i < SAMPLES_PER_FRAME; i++) {
@@ -1649,14 +1493,12 @@
           offset += 2;
         }
       }
-      
       return new Blob([buffer], { type: 'audio/wav' });
     }
     
     function downloadMultiFrameWav() {
       const blob = createMultiFrameWav();
       if (!blob) return;
-      
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -1670,13 +1512,11 @@
     function downloadSingleFrame(frame) {
       const buffer = new ArrayBuffer(44 + SAMPLES_PER_FRAME * 2);
       const view = new DataView(buffer);
-      
       const writeString = (offset, string) => {
         for (let i = 0; i < string.length; i++) {
           view.setUint8(offset + i, string.charCodeAt(i));
         }
       };
-      
       writeString(0, 'RIFF');
       view.setUint32(4, 36 + SAMPLES_PER_FRAME * 2, true);
       writeString(8, 'WAVE');
@@ -1690,14 +1530,12 @@
       view.setUint16(34, 16, true);
       writeString(36, 'data');
       view.setUint32(40, SAMPLES_PER_FRAME * 2, true);
-      
       let offset = 44;
       for (let i = 0; i < SAMPLES_PER_FRAME; i++) {
         const sample = Math.max(-1, Math.min(1, frame.waveform[i]));
         view.setInt16(offset, Math.floor(sample * 32767), true);
         offset += 2;
       }
-      
       const blob = new Blob([buffer], { type: 'audio/wav' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -1709,16 +1547,11 @@
       URL.revokeObjectURL(url);
     }
     
-    // ============================================================
-    // UI UPDATE
-    // ============================================================
-    
     function renderFramesList() {
       if (frames.length === 0) {
         framesList.innerHTML = '<div class="empty-state">Aucune frame ajoutée</div>';
         return;
       }
-      
       framesList.innerHTML = frames.map((frame, index) => `
         <div class="frame-item ${selectedFrameId === frame.id ? 'selected' : ''}" draggable="true" data-id="${frame.id}" data-index="${index}">
           <div class="drag-handle" data-index="${index}">
@@ -1733,24 +1566,18 @@
           <button class="frame-action delete" data-action="delete" data-id="${frame.id}">×</button>
         </div>
       `).join('');
-      
-      // Dessiner les mini waveforms
       frames.forEach(frame => {
         const canvas = framesList.querySelector(`canvas[data-frame-id="${frame.id}"]`);
         if (canvas) {
           drawMiniWaveform(canvas, frame.waveform, selectedFrameId === frame.id);
         }
       });
-      
-      // Event listeners
       framesList.querySelectorAll('.frame-item').forEach(item => {
         item.addEventListener('click', (e) => {
           if (!e.target.closest('.drag-handle') && !e.target.closest('.frame-action')) {
             selectFrame(parseInt(item.dataset.id));
           }
         });
-
-        // Correction du Drag and Drop
         item.addEventListener('dragstart', (e) => handleDragStart(e, parseInt(item.dataset.index)));
         item.addEventListener('dragend', handleDragEnd);
         item.addEventListener('dragover', (e) => handleDragOver(e, parseInt(item.dataset.index)));
@@ -1759,7 +1586,6 @@
         });
         item.addEventListener('drop', (e) => handleDrop(e, parseInt(item.dataset.index)));
       });
-      
       framesList.querySelectorAll('.frame-action').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -1775,21 +1601,15 @@
     }
     
     function updateUI() {
-      // Frame count
       frameCountSpan.textContent = frames.length;
       exportFrameCount.textContent = frames.length;
-      
-      // Show/hide elements
       const hasFrames = frames.length > 0;
       vizEmpty.style.display = hasFrames ? 'none' : 'flex';
       vizContent.style.display = hasFrames ? 'block' : 'none';
       exportBtn.style.display = hasFrames ? 'block' : 'none';
       infoText.style.display = hasFrames ? 'block' : 'none';
-      
-      // Frame settings
       const selectedFrame = frames.find(f => f.id === selectedFrameId);
       frameSettings.style.display = selectedFrame ? 'block' : 'none';
-      
       if (selectedFrame) {
         selectedFrameName.textContent = selectedFrame.name;
         thresholdSlider.value = selectedFrame.threshold;
@@ -1800,25 +1620,15 @@
         autoLabel.style.display = selectedFrame.autoSmooth ? 'inline' : 'none';
         autoToggle.classList.toggle('active', selectedFrame.autoSmooth);
       }
-      
-      // Update max frame label
       maxFrameLabel.textContent = `FRAME ${TARGET_VIZ_FRAMES}`;
-      
-      // Render frames list
       renderFramesList();
-      
-      // Draw 3D visualization and preview
       if (hasFrames) {
         draw3DWavetable();
         drawCurrentWavePreview(getWaveformAtPosition(wtPosition));
       } else {
         drawCurrentWavePreview(null);
       }
-      
-      // Update play button state
       updatePlayButton();
-      
-      // Update audio if playing
       if (isPlaying && frames.length > 0) {
         const waveform = getWaveformAtPosition(wtPosition);
         if (waveform) {
@@ -1827,10 +1637,6 @@
         }
       }
     }
-    
-    // ============================================================
-    // EVENT LISTENERS
-    // ============================================================
     
     addBtn.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', handleFileChange);
@@ -1866,13 +1672,9 @@
     wtPositionSlider.addEventListener('input', (e) => {
       wtPosition = Number(e.target.value);
       wtPositionValue.textContent = `${(wtPosition * 100).toFixed(1)}%`;
-      
-      // Update slider background
       wtPositionSlider.style.background = `linear-gradient(to right, #ffffff 0%, #ffffff ${wtPosition * 100}%, #262626 ${wtPosition * 100}%, #262626 100%)`;
-      
       draw3DWavetable();
       drawCurrentWavePreview(getWaveformAtPosition(wtPosition)); 
-      
       if (isPlaying && frames.length > 0) {
         const waveform = getWaveformAtPosition(wtPosition);
         if (waveform) {
@@ -1889,7 +1691,6 @@
         octave--;
         octaveDisplay.textContent = octave;
         octaveNote.textContent = `C${octave}`;
-        
         if (isPlaying && frames.length > 0) {
           const waveform = getWaveformAtPosition(wtPosition);
           if (waveform) {
@@ -1905,7 +1706,6 @@
         octave++;
         octaveDisplay.textContent = octave;
         octaveNote.textContent = `C${octave}`;
-        
         if (isPlaying && frames.length > 0) {
           const waveform = getWaveformAtPosition(wtPosition);
           if (waveform) {
@@ -1921,56 +1721,37 @@
         filterButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         filterType = btn.dataset.filter;
-        
         filterFreqContainer.classList.toggle('disabled', filterType === 'off');
-        
         updateFilter();
       });
     });
     
     filterFreqSlider.addEventListener('input', (e) => {
       filterFreq = Number(e.target.value);
-      
-      // Format display
       if (filterFreq >= 1000) {
         filterFreqValue.textContent = `${(filterFreq / 1000).toFixed(1)}k Hz`;
       } else {
         filterFreqValue.textContent = `${filterFreq} Hz`;
       }
-      
-      // Update slider background
       const percent = ((filterFreq - 100) / 9900) * 100;
       filterFreqSlider.style.background = `linear-gradient(to right, #ffffff 0%, #ffffff ${percent}%, #262626 ${percent}%, #262626 100%)`;
-      
       updateFilter();
     });
-    
-    // ============================================================
-    // RESPONSIVE CANVAS
-    // ============================================================
     
     function resizeCanvas() {
       const container = vizContent.parentElement;
       const maxWidth = container.clientWidth - 32;
-      const aspectRatio = 700 / 400;
-      
       canvas3D.style.width = '100%';
       canvas3D.style.maxWidth = maxWidth + 'px';
-      
       if (frames.length > 0) {
         draw3DWavetable();
       }
-      
       if (frames.length > 0) {
         drawCurrentWavePreview(getWaveformAtPosition(wtPosition));
       }
     }
     
     window.addEventListener('resize', resizeCanvas);
-    
-    // ============================================================
-    // SERVICE WORKER REGISTRATION
-    // ============================================================
     
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -1980,7 +1761,6 @@
       });
     }
     
-    // Initial UI
     updateUI();
     resizeCanvas();
   </script>
