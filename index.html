@@ -332,6 +332,67 @@
       border-color: #fff;
     }
     
+    /* === DEBUG TOGGLE === */
+    .debug-toggle {
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      border-radius: 0.25rem;
+      border: 1px solid #404040;
+      background: transparent;
+      color: #737373;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-left: 0.5rem;
+    }
+    
+    .debug-toggle.active {
+      background: #ef4444;
+      color: #fff;
+      border-color: #ef4444;
+    }
+    
+    /* === DEBUG PANEL === */
+    .debug-panel {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #0a0a0a;
+      border: 1px solid #404040;
+      border-radius: 0.25rem;
+    }
+    
+    .debug-title {
+      font-size: 0.75rem;
+      color: #ef4444;
+      font-family: monospace;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    
+    .debug-images {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+    
+    .debug-image-container {
+      text-align: center;
+    }
+    
+    .debug-label {
+      font-size: 10px;
+      color: #666;
+      font-family: monospace;
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+    }
+    
+    .debug-canvas {
+      width: 100%;
+      border: 1px solid #333;
+      border-radius: 0.25rem;
+    }
+    
     /* === VISUALISATION 3D === */
     .viz-container {
       background: #000;
@@ -649,6 +710,7 @@
       padding-top: 1rem;
       border-top: 1px solid #171717;
       text-align: center;
+      position: relative;
     }
     
     footer p {
@@ -656,6 +718,31 @@
       font-size: 10px;
       letter-spacing: 0.2em;
       text-transform: uppercase;
+    }
+    
+    /* === CACHE RELOAD BUTTON === */
+    .cache-reload-btn {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 0.5rem 0.75rem;
+      font-size: 10px;
+      font-family: monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: 1px solid #262626;
+      background: transparent;
+      color: #404040;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-radius: 0.25rem;
+    }
+    
+    .cache-reload-btn:hover {
+      background: #171717;
+      border-color: #404040;
+      color: #737373;
     }
     
     .empty-state {
@@ -700,7 +787,7 @@
       </div>
       <div class="brand">
         <div class="brand-name">smem</div>
-        <div class="brand-location">Fribourg, CH V2.7</div>
+        <div class="brand-location">Fribourg, CH V2.8</div>
       </div>
     </header>
     
@@ -734,12 +821,27 @@
             
             <div class="slider-group">
               <div class="slider-label">
-                <span>Lissage <span id="autoLabel">(auto)</span></span>
-                <span class="slider-value" id="smoothValue">10</span>
+                <span>Lissage</span>
+                <span class="slider-value" id="smoothValue">3</span>
               </div>
-              <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <input type="range" id="smoothSlider" min="1" max="30" value="10" style="flex: 1;">
-                <button id="autoToggle" class="auto-toggle active">Auto</button>
+              <input type="range" id="smoothSlider" min="1" max="10" value="3">
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem;">
+              <button id="debugToggle" class="debug-toggle">Debug</button>
+            </div>
+            
+            <div id="debugPanel" class="debug-panel" style="display: none;">
+              <div class="debug-title">Mode Debug</div>
+              <div class="debug-images">
+                <div class="debug-image-container">
+                  <div class="debug-label">Image originale</div>
+                  <canvas id="debugOriginal" class="debug-canvas" width="300" height="100"></canvas>
+                </div>
+                <div class="debug-image-container">
+                  <div class="debug-label">Image binarisée (seuil: <span id="debugThreshold">128</span>)</div>
+                  <canvas id="debugBinary" class="debug-canvas" width="300" height="100"></canvas>
+                </div>
               </div>
             </div>
           </div>
@@ -838,6 +940,7 @@
     
     <footer>
       <p>Un projet de médiation culturelle du smem — Swiss Museum for Electronic Music Instruments</p>
+      <button id="cacheReloadBtn" class="cache-reload-btn">⟳ Clear Cache</button>
     </footer>
   </div>
 
@@ -850,7 +953,7 @@
     let frames = [];
     let selectedFrameId = null;
     let globalThreshold = 128;
-    let globalSmooth = 10;
+    let globalSmooth = 3;
     let wtPosition = 0;
     let draggedIndex = null;
     let isPlaying = false;
@@ -865,6 +968,7 @@
     let pendingWaveform = null;
     let phase = 0;
     let playbackRate = 1;
+    let debugMode = false;
     
     const fileInput = document.getElementById('fileInput');
     const addBtn = document.getElementById('addBtn');
@@ -876,8 +980,11 @@
     const thresholdValue = document.getElementById('thresholdValue');
     const smoothSlider = document.getElementById('smoothSlider');
     const smoothValue = document.getElementById('smoothValue');
-    const autoLabel = document.getElementById('autoLabel');
-    const autoToggle = document.getElementById('autoToggle');
+    const debugToggle = document.getElementById('debugToggle');
+    const debugPanel = document.getElementById('debugPanel');
+    const debugOriginal = document.getElementById('debugOriginal');
+    const debugBinary = document.getElementById('debugBinary');
+    const debugThreshold = document.getElementById('debugThreshold');
     const exportBtn = document.getElementById('exportBtn');
     const exportFrameCount = document.getElementById('exportFrameCount');
     const vizEmpty = document.getElementById('vizEmpty');
@@ -902,6 +1009,256 @@
     const infoText = document.getElementById('infoText');
     const frameSummary = document.getElementById('frameSummary');
     const vizPositionInfo = document.getElementById('vizPositionInfo');
+    const cacheReloadBtn = document.getElementById('cacheReloadBtn');
+    
+    // ============================================
+    // NOUVEAU ALGORITHME V2.8
+    // ============================================
+    
+    function convertToGrayscale(pixels, width, height) {
+      const gray = new Uint8ClampedArray(width * height);
+      for (let i = 0; i < gray.length; i++) {
+        const idx = i * 4;
+        gray[i] = Math.round((pixels[idx] + pixels[idx + 1] + pixels[idx + 2]) / 3);
+      }
+      return gray;
+    }
+    
+    function applyThreshold(gray, threshold) {
+      const binary = new Uint8ClampedArray(gray.length);
+      for (let i = 0; i < gray.length; i++) {
+        binary[i] = gray[i] < threshold ? 0 : 255;
+      }
+      return binary;
+    }
+    
+    function extractCurveFromBinary(binary, width, height) {
+      const curve = [];
+      
+      for (let x = 0; x < width; x++) {
+        const blackPixels = [];
+        
+        // Scanner la colonne de haut en bas
+        for (let y = 0; y < height; y++) {
+          const idx = y * width + x;
+          if (binary[idx] === 0) { // Pixel noir
+            blackPixels.push(y);
+          }
+        }
+        
+        if (blackPixels.length > 0) {
+          // Utiliser le centre de masse des pixels noirs
+          const centerOfMass = blackPixels.reduce((a, b) => a + b, 0) / blackPixels.length;
+          curve.push(centerOfMass);
+        } else {
+          curve.push(null);
+        }
+      }
+      
+      return curve;
+    }
+    
+    function interpolateGaps(curve) {
+      const filled = [...curve];
+      
+      // Trouver le premier et dernier pixel valide
+      const firstValid = filled.findIndex(v => v !== null);
+      const lastValid = filled.length - 1 - [...filled].reverse().findIndex(v => v !== null);
+      
+      if (firstValid === -1) return filled;
+      
+      // Remplir les trous au début
+      for (let i = 0; i < firstValid; i++) {
+        filled[i] = filled[firstValid];
+      }
+      
+      // Remplir les trous au milieu
+      let lastValidIdx = firstValid;
+      let lastValidValue = filled[firstValid];
+      
+      for (let i = firstValid + 1; i <= lastValid; i++) {
+        if (filled[i] !== null) {
+          // Interpoler entre lastValid et current
+          const gap = i - lastValidIdx;
+          if (gap > 1) {
+            const step = (filled[i] - lastValidValue) / gap;
+            for (let j = 1; j < gap; j++) {
+              filled[lastValidIdx + j] = lastValidValue + step * j;
+            }
+          }
+          lastValidIdx = i;
+          lastValidValue = filled[i];
+        }
+      }
+      
+      // Remplir les trous à la fin
+      for (let i = lastValid + 1; i < filled.length; i++) {
+        filled[i] = filled[lastValid];
+      }
+      
+      return filled;
+    }
+    
+    function applySmoothingGaussian(curve, windowSize) {
+      if (windowSize <= 1) return curve;
+      
+      const smoothed = [];
+      const half = Math.floor(windowSize / 2);
+      const sigma = windowSize / 3;
+      
+      for (let i = 0; i < curve.length; i++) {
+        let sum = 0;
+        let weightSum = 0;
+        
+        for (let j = -half; j <= half; j++) {
+          const idx = Math.max(0, Math.min(curve.length - 1, i + j));
+          const weight = Math.exp(-(j * j) / (2 * sigma * sigma));
+          sum += curve[idx] * weight;
+          weightSum += weight;
+        }
+        
+        smoothed.push(sum / weightSum);
+      }
+      
+      return smoothed;
+    }
+    
+    function normalizeCurve(curve) {
+      const min = Math.min(...curve);
+      const max = Math.max(...curve);
+      const center = (min + max) / 2;
+      const range = max - min;
+      
+      if (range === 0) return curve.map(() => 0);
+      
+      // Normaliser entre -1 et 1, en inversant (haut = positif)
+      return curve.map(y => ((center - y) / (range / 2)));
+    }
+    
+    function resampleTo2048(waveform) {
+      const result = new Float32Array(SAMPLES_PER_FRAME);
+      for (let i = 0; i < SAMPLES_PER_FRAME; i++) {
+        const pos = (i / SAMPLES_PER_FRAME) * waveform.length;
+        const idx = Math.floor(pos);
+        const frac = pos - idx;
+        const v1 = waveform[idx] || 0;
+        const v2 = waveform[Math.min(idx + 1, waveform.length - 1)] || 0;
+        result[i] = (v1 + (v2 - v1) * frac) * 0.95;
+      }
+      return result;
+    }
+    
+    function processImageWithSettings(image, threshold, smooth) {
+      const width = 600;
+      const height = 200;
+      
+      processingCanvas.width = width;
+      processingCanvas.height = height;
+      
+      // Dessiner l'image sur fond blanc
+      processingCtx.fillStyle = '#ffffff';
+      processingCtx.fillRect(0, 0, width, height);
+      processingCtx.drawImage(image, 0, 0, width, height);
+      
+      const imageData = processingCtx.getImageData(0, 0, width, height);
+      const pixels = imageData.data;
+      
+      // Étape 1: Conversion en niveaux de gris
+      const gray = convertToGrayscale(pixels, width, height);
+      
+      // Étape 2: Binarisation avec le seuil utilisateur
+      const binary = applyThreshold(gray, threshold);
+      
+      // Étape 3: Extraction de la courbe
+      let curve = extractCurveFromBinary(binary, width, height);
+      
+      // Étape 4: Interpolation des trous
+      curve = interpolateGaps(curve);
+      
+      // Étape 5: Lissage léger
+      curve = applySmoothingGaussian(curve, smooth);
+      
+      // Étape 6: Normalisation
+      const normalized = normalizeCurve(curve);
+      
+      // Étape 7: Rééchantillonnage à 2048
+      const waveform = resampleTo2048(normalized);
+      
+      // Retourner aussi les données de debug
+      return {
+        waveform,
+        debugData: {
+          original: imageData,
+          binary: binary,
+          width: width,
+          height: height
+        }
+      };
+    }
+    
+    function updateDebugView(frame) {
+      if (!frame || !frame.debugData) return;
+      
+      const data = frame.debugData;
+      
+      // Afficher l'image originale
+      const ctxOrig = debugOriginal.getContext('2d');
+      debugOriginal.width = data.width;
+      debugOriginal.height = data.height;
+      ctxOrig.putImageData(data.original, 0, 0);
+      
+      // Afficher l'image binarisée
+      const ctxBin = debugBinary.getContext('2d');
+      debugBinary.width = data.width;
+      debugBinary.height = data.height;
+      
+      const binaryImageData = ctxBin.createImageData(data.width, data.height);
+      for (let i = 0; i < data.binary.length; i++) {
+        const idx = i * 4;
+        const val = data.binary[i];
+        binaryImageData.data[idx] = val;
+        binaryImageData.data[idx + 1] = val;
+        binaryImageData.data[idx + 2] = val;
+        binaryImageData.data[idx + 3] = 255;
+      }
+      ctxBin.putImageData(binaryImageData, 0, 0);
+      
+      debugThreshold.textContent = frame.threshold;
+    }
+    
+    // ============================================
+    // GESTION DU CACHE
+    // ============================================
+    
+    async function clearCacheAndReload() {
+      try {
+        // Désinscrire le service worker
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (const registration of registrations) {
+            await registration.unregister();
+          }
+        }
+        
+        // Vider tous les caches
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          await Promise.all(
+            cacheNames.map(cacheName => caches.delete(cacheName))
+          );
+        }
+        
+        // Recharger la page
+        window.location.reload(true);
+      } catch (err) {
+        console.error('Erreur lors du nettoyage du cache:', err);
+        alert('Erreur lors du nettoyage. Essayez Cmd/Ctrl + Shift + R');
+      }
+    }
+    
+    // ============================================
+    // AUDIO ET PLAYBACK
+    // ============================================
     
     function interpolateWaveforms(wf1, wf2, t) {
       const result = new Float32Array(SAMPLES_PER_FRAME);
@@ -1037,217 +1394,9 @@
       playBtn.disabled = frames.length === 0;
     }
     
-    function preprocessToBinary(pixels, width, height) {
-      const gray = new Uint8Array(width * height);
-      for (let i = 0; i < gray.length; i++) {
-        const idx = i * 4;
-        gray[i] = (pixels[idx] + pixels[idx + 1] + pixels[idx + 2]) / 3;
-      }
-      const sorted = Array.from(gray).sort((a, b) => a - b);
-      const threshold = sorted[Math.floor(sorted.length / 2)];
-      const binary = new Uint8ClampedArray(pixels.length);
-      for (let i = 0; i < gray.length; i++) {
-        const value = gray[i] < threshold ? 0 : 255;
-        const idx = i * 4;
-        binary[idx] = binary[idx + 1] = binary[idx + 2] = value;
-        binary[idx + 3] = 255;
-      }
-      return binary;
-    }
-    
-    function createBinaryMask(pixels, width, height, thresh) {
-      const mask = new Array(width * height);
-      for (let i = 0; i < width * height; i++) {
-        const idx = i * 4;
-        const brightness = (pixels[idx] + pixels[idx + 1] + pixels[idx + 2]) / 3;
-        mask[i] = brightness < thresh;
-      }
-      return mask;
-    }
-    
-    function findBoundingBox(mask, width, height) {
-      let minX = width, maxX = 0, minY = height, maxY = 0;
-      let hasPixels = false;
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          if (mask[y * width + x]) {
-            hasPixels = true;
-            minX = Math.min(minX, x);
-            maxX = Math.max(maxX, x);
-            minY = Math.min(minY, y);
-            maxY = Math.max(maxY, y);
-          }
-        }
-      }
-      return hasPixels ? { minX, maxX, minY, maxY } : null;
-    }
-    
-    function extractCurveMedian(mask, width, height, bounds) {
-      const curve = [];
-      for (let x = bounds.minX; x <= bounds.maxX; x++) {
-        const activeYs = [];
-        for (let y = bounds.minY; y <= bounds.maxY; y++) {
-          if (mask[y * width + x]) {
-            activeYs.push(y);
-          }
-        }
-        if (activeYs.length > 0) {
-          activeYs.sort((a, b) => a - b);
-          const mid = Math.floor(activeYs.length / 2);
-          curve.push(activeYs.length % 2 === 0 
-            ? (activeYs[mid - 1] + activeYs[mid]) / 2 
-            : activeYs[mid]);
-        } else {
-          curve.push(null);
-        }
-      }
-      return curve;
-    }
-    
-    function autoCropAndStretch(curve, targetWidth) {
-      const validIndices = curve.map((v, i) => v !== null ? i : -1).filter(i => i >= 0);
-      if (validIndices.length === 0) return curve;
-      const startIdx = validIndices[0];
-      const endIdx = validIndices[validIndices.length - 1];
-      const croppedCurve = curve.slice(startIdx, endIdx + 1);
-      const stretched = [];
-      for (let x = 0; x < targetWidth; x++) {
-        const pos = (x / targetWidth) * (croppedCurve.length - 1);
-        const idx = Math.floor(pos);
-        const frac = pos - idx;
-        if (idx >= croppedCurve.length - 1) {
-          stretched.push(croppedCurve[croppedCurve.length - 1]);
-        } else {
-          const v1 = croppedCurve[idx];
-          const v2 = croppedCurve[idx + 1];
-          if (v1 !== null && v2 !== null) {
-            stretched.push(v1 + (v2 - v1) * frac);
-          } else if (v1 !== null) {
-            stretched.push(v1);
-          } else if (v2 !== null) {
-            stretched.push(v2);
-          } else {
-            stretched.push(null);
-          }
-        }
-      }
-      return stretched;
-    }
-    
-    function fillGaps(curve) {
-      const filled = [...curve];
-      let lastValid = null, lastValidIdx = -1;
-      for (let i = 0; i < filled.length; i++) {
-        if (filled[i] !== null) {
-          if (lastValid !== null && i - lastValidIdx > 1) {
-            const gap = i - lastValidIdx;
-            const step = (filled[i] - lastValid) / gap;
-            for (let j = 1; j < gap; j++) {
-              filled[lastValidIdx + j] = lastValid + step * j;
-            }
-          }
-          lastValid = filled[i];
-          lastValidIdx = i;
-        }
-      }
-      const firstValid = filled.findIndex(v => v !== null);
-      if (firstValid > 0) {
-        for (let i = 0; i < firstValid; i++) filled[i] = filled[firstValid];
-      }
-      const lastValidFinal = filled.length - 1 - [...filled].reverse().findIndex(v => v !== null);
-      if (lastValidFinal < filled.length - 1) {
-        for (let i = lastValidFinal + 1; i < filled.length; i++) filled[i] = filled[lastValidFinal];
-      }
-      return filled;
-    }
-    
-    function detectAbruptChanges(curve) {
-      if (curve.length < 3) return 0;
-      let maxJump = 0;
-      const range = Math.max(...curve) - Math.min(...curve);
-      for (let i = 1; i < curve.length; i++) {
-        const jump = Math.abs(curve[i] - curve[i - 1]);
-        maxJump = Math.max(maxJump, jump);
-      }
-      return range > 0 ? maxJump / range : 0;
-    }
-    
-    function calculateAutoSmooth(curve) {
-      const abruptness = detectAbruptChanges(curve);
-      if (abruptness > 0.5) return 25;
-      if (abruptness > 0.3) return 18;
-      if (abruptness > 0.2) return 12;
-      if (abruptness > 0.1) return 8;
-      return 5;
-    }
-    
-    function smoothCurve(curve, windowSize) {
-      if (windowSize <= 1) return curve;
-      const smoothed = [];
-      const half = Math.floor(windowSize / 2);
-      const sigma = windowSize / 3;
-      for (let i = 0; i < curve.length; i++) {
-        let sum = 0, weightSum = 0;
-        for (let j = -half; j <= half; j++) {
-          const idx = Math.max(0, Math.min(curve.length - 1, i + j));
-          const weight = Math.exp(-(j * j) / (2 * sigma * sigma));
-          sum += curve[idx] * weight;
-          weightSum += weight;
-        }
-        smoothed.push(sum / weightSum);
-      }
-      return smoothed;
-    }
-    
-    function normalizeCurve(curve) {
-      const min = Math.min(...curve);
-      const max = Math.max(...curve);
-      const center = (min + max) / 2;
-      const range = max - min;
-      if (range === 0) return curve.map(() => 0);
-      return curve.map(y => ((y - center) / (range / 2)) * -1);
-    }
-    
-    function resampleTo2048(waveform) {
-      const result = new Float32Array(SAMPLES_PER_FRAME);
-      for (let i = 0; i < SAMPLES_PER_FRAME; i++) {
-        const pos = (i / SAMPLES_PER_FRAME) * waveform.length;
-        const idx = Math.floor(pos);
-        const frac = pos - idx;
-        const v1 = waveform[idx] || 0;
-        const v2 = waveform[Math.min(idx + 1, waveform.length - 1)] || 0;
-        result[i] = (v1 + (v2 - v1) * frac) * 0.95;
-      }
-      return result;
-    }
-    
-    function processImageWithSettings(image, threshold, smooth, autoSmooth = true) {
-      const width = 600;
-      const height = 200;
-      processingCanvas.width = width;
-      processingCanvas.height = height;
-      processingCtx.fillStyle = '#ffffff';
-      processingCtx.fillRect(0, 0, width, height);
-      processingCtx.drawImage(image, 0, 0, width, height);
-      const imageData = processingCtx.getImageData(0, 0, width, height);
-      const pixels = imageData.data;
-      const binaryPixels = preprocessToBinary(pixels, width, height);
-      const mask = createBinaryMask(binaryPixels, width, height, threshold);
-      const bounds = findBoundingBox(mask, width, height);
-      if (!bounds) return null;
-      let curve = extractCurveMedian(mask, width, height, bounds);
-      curve = autoCropAndStretch(curve, width);
-      curve = fillGaps(curve);
-      let smoothValue = smooth;
-      if (autoSmooth) {
-        smoothValue = calculateAutoSmooth(curve);
-      }
-      curve = smoothCurve(curve, smoothValue);
-      curve = smoothCurve(curve, Math.floor(smoothValue / 2));
-      const normalized = normalizeCurve(curve);
-      const waveform = resampleTo2048(normalized);
-      return { waveform, calculatedSmooth: smoothValue };
-    }
+    // ============================================
+    // GESTION DES FICHIERS
+    // ============================================
     
     function handleFileChange(e) {
       const files = Array.from(e.target.files);
@@ -1256,7 +1405,7 @@
         reader.onload = (event) => {
           const img = new Image();
           img.onload = () => {
-            const result = processImageWithSettings(img, globalThreshold, globalSmooth, true);
+            const result = processImageWithSettings(img, globalThreshold, globalSmooth);
             if (result) {
               if (frames.length >= MAX_FRAMES) {
                 alert(`Maximum ${MAX_FRAMES} frames`);
@@ -1268,8 +1417,8 @@
                 waveform: result.waveform,
                 name: file.name.replace(/\.[^/.]+$/, ''),
                 threshold: globalThreshold,
-                smooth: result.calculatedSmooth,
-                autoSmooth: true
+                smooth: globalSmooth,
+                debugData: result.debugData
               };
               frames.push(newFrame);
               updateUI();
@@ -1295,18 +1444,22 @@
       updateUI();
     }
     
-    function updateFrameSettings(id, threshold, smooth, autoSmooth) {
+    function updateFrameSettings(id, threshold, smooth) {
       const frame = frames.find(f => f.id === id);
       if (!frame) return;
       frame.threshold = threshold;
-      frame.autoSmooth = autoSmooth;
-      const result = processImageWithSettings(frame.image, threshold, smooth, autoSmooth);
+      frame.smooth = smooth;
+      const result = processImageWithSettings(frame.image, threshold, smooth);
       if (result) {
         frame.waveform = result.waveform;
-        frame.smooth = result.calculatedSmooth;
+        frame.debugData = result.debugData;
       }
       updateUI();
     }
+    
+    // ============================================
+    // DRAG & DROP
+    // ============================================
     
     function handleDragStart(e, index) {
       draggedIndex = index;
@@ -1361,6 +1514,10 @@
         el.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom');
       });
     }
+    
+    // ============================================
+    // VISUALISATION
+    // ============================================
     
     function draw3DWavetable() {
       const width = canvas3D.width;
@@ -1462,6 +1619,10 @@
       ctx.stroke();
     }
     
+    // ============================================
+    // EXPORT WAV
+    // ============================================
+    
     function createMultiFrameWav() {
       if (frames.length === 0) return null;
       const totalSamples = frames.length * SAMPLES_PER_FRAME;
@@ -1547,6 +1708,10 @@
       URL.revokeObjectURL(url);
     }
     
+    // ============================================
+    // UI
+    // ============================================
+    
     function renderFramesList() {
       if (frames.length === 0) {
         framesList.innerHTML = '<div class="empty-state">Aucune frame ajoutée</div>';
@@ -1616,9 +1781,10 @@
         thresholdValue.textContent = selectedFrame.threshold;
         smoothSlider.value = selectedFrame.smooth;
         smoothValue.textContent = selectedFrame.smooth;
-        smoothSlider.disabled = selectedFrame.autoSmooth;
-        autoLabel.style.display = selectedFrame.autoSmooth ? 'inline' : 'none';
-        autoToggle.classList.toggle('active', selectedFrame.autoSmooth);
+        
+        if (debugMode) {
+          updateDebugView(selectedFrame);
+        }
       }
       maxFrameLabel.textContent = `FRAME ${TARGET_VIZ_FRAMES}`;
       renderFramesList();
@@ -1638,6 +1804,10 @@
       }
     }
     
+    // ============================================
+    // EVENT LISTENERS
+    // ============================================
+    
     addBtn.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', handleFileChange);
     exportBtn.addEventListener('click', downloadMultiFrameWav);
@@ -1646,7 +1816,7 @@
       if (selectedFrameId) {
         const frame = frames.find(f => f.id === selectedFrameId);
         if (frame) {
-          updateFrameSettings(selectedFrameId, Number(e.target.value), frame.smooth, frame.autoSmooth);
+          updateFrameSettings(selectedFrameId, Number(e.target.value), frame.smooth);
         }
       }
     });
@@ -1655,16 +1825,20 @@
       if (selectedFrameId) {
         const frame = frames.find(f => f.id === selectedFrameId);
         if (frame) {
-          updateFrameSettings(selectedFrameId, frame.threshold, Number(e.target.value), false);
+          updateFrameSettings(selectedFrameId, frame.threshold, Number(e.target.value));
         }
       }
     });
     
-    autoToggle.addEventListener('click', () => {
-      if (selectedFrameId) {
+    debugToggle.addEventListener('click', () => {
+      debugMode = !debugMode;
+      debugToggle.classList.toggle('active', debugMode);
+      debugPanel.style.display = debugMode ? 'block' : 'none';
+      
+      if (debugMode && selectedFrameId) {
         const frame = frames.find(f => f.id === selectedFrameId);
         if (frame) {
-          updateFrameSettings(selectedFrameId, frame.threshold, frame.smooth, !frame.autoSmooth);
+          updateDebugView(frame);
         }
       }
     });
@@ -1738,6 +1912,8 @@
       updateFilter();
     });
     
+    cacheReloadBtn.addEventListener('click', clearCacheAndReload);
+    
     function resizeCanvas() {
       const container = vizContent.parentElement;
       const maxWidth = container.clientWidth - 32;
@@ -1752,14 +1928,6 @@
     }
     
     window.addEventListener('resize', resizeCanvas);
-    
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-          .then(reg => console.log('Service Worker registered'))
-          .catch(err => console.log('Service Worker registration failed:', err));
-      });
-    }
     
     updateUI();
     resizeCanvas();
