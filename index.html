@@ -787,7 +787,7 @@
       </div>
       <div class="brand">
         <div class="brand-name">smem</div>
-        <div class="brand-location">Fribourg, CH V2.82</div>
+        <div class="brand-location">Fribourg, CH V2.8.1</div>
       </div>
     </header>
     
@@ -1290,8 +1290,11 @@
     function stopAudio() {
       if (scriptNode) {
         try {
+          // Si c'est un BufferSource, on utilise stop()
+          if (scriptNode.stop) {
+            scriptNode.stop();
+          }
           scriptNode.disconnect();
-          scriptNode.onaudioprocess = null;
         } catch (e) {}
         scriptNode = null;
       }
@@ -1328,57 +1331,95 @@
       const ctx = getAudioContext();
       if (ctx.state === 'suspended') ctx.resume();
       stopAudio();
+      
       const waveform = getWaveformAtPosition(wtPosition);
       if (!waveform) return;
+      
       const frequency = BASE_NOTE_FREQ * Math.pow(2, octave - 3);
-      const rate = (frequency * SAMPLES_PER_FRAME) / ctx.sampleRate;
-      currentWaveform = waveform;
-      pendingWaveform = null;
-      phase = 0;
-      playbackRate = rate;
+      
+      // Créer un buffer audio avec la waveform
+      const bufferSize = SAMPLES_PER_FRAME;
+      const audioBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const channelData = audioBuffer.getChannelData(0);
+      
+      // Copier la waveform dans le buffer
+      for (let i = 0; i < bufferSize; i++) {
+        channelData[i] = waveform[i];
+      }
+      
+      // Créer un BufferSource pour la lecture en boucle
+      const source = ctx.createBufferSource();
+      source.buffer = audioBuffer;
+      source.loop = true;
+      
+      // Ajuster la vitesse de lecture pour obtenir la bonne fréquence
+      const baseFreq = ctx.sampleRate / SAMPLES_PER_FRAME;
+      source.playbackRate.value = frequency / baseFreq;
+      
+      // Créer la chaîne audio
       filterNode = ctx.createBiquadFilter();
       masterGain = ctx.createGain();
       masterGain.gain.value = 0.5;
+      
+      source.connect(filterNode);
       filterNode.connect(masterGain);
       masterGain.connect(ctx.destination);
-      try {
-        scriptNode = ctx.createScriptProcessor(2048, 0, 1);
-        scriptNode.connect(filterNode);
-        scriptNode.onaudioprocess = (e) => {
-          const output = e.outputBuffer.getChannelData(0);
-          const wf = currentWaveform;
-          if (!wf) {
-            for (let i = 0; i < output.length; i++) output[i] = 0;
-            return;
-          }
-          for (let i = 0; i < output.length; i++) {
-            const index = phase % SAMPLES_PER_FRAME;
-            const indexFloor = Math.floor(index);
-            const indexCeil = (indexFloor + 1) % SAMPLES_PER_FRAME;
-            const frac = index - indexFloor;
-            output[i] = wf[indexFloor] * (1 - frac) + wf[indexCeil] * frac;
-            phase += playbackRate;
-            if (phase >= SAMPLES_PER_FRAME) {
-              phase = phase % SAMPLES_PER_FRAME;
-              if (pendingWaveform) {
-                currentWaveform = pendingWaveform;
-                pendingWaveform = null;
-              }
-            }
-          }
-        };
-      } catch (e) {
-        console.warn('ScriptProcessorNode not available');
-      }
+      
       updateFilter();
+      
+      // Démarrer la lecture
+      source.start(0);
+      
+      // Stocker la source pour pouvoir l'arrêter
+      scriptNode = source; // On réutilise cette variable pour stocker la source
+      
       isPlaying = true;
       updatePlayButton();
     }
     
     function queueWaveformChange(newWaveform, frequency) {
-      if (!audioContext) return;
-      pendingWaveform = newWaveform;
-      playbackRate = (frequency * SAMPLES_PER_FRAME) / audioContext.sampleRate;
+      if (!audioContext || !isPlaying) return;
+      
+      // Avec BufferSource, on doit arrêter et redémarrer
+      // Sauvegarder l'état du filtre
+      const currentFilterType = filterType;
+      const currentFilterFreq = filterFreq;
+      
+      stopAudio();
+      
+      // Recréer avec la nouvelle waveform
+      const bufferSize = SAMPLES_PER_FRAME;
+      const audioBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+      const channelData = audioBuffer.getChannelData(0);
+      
+      for (let i = 0; i < bufferSize; i++) {
+        channelData[i] = newWaveform[i];
+      }
+      
+      const source = audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+      source.loop = true;
+      
+      const baseFreq = audioContext.sampleRate / SAMPLES_PER_FRAME;
+      source.playbackRate.value = frequency / baseFreq;
+      
+      filterNode = audioContext.createBiquadFilter();
+      masterGain = audioContext.createGain();
+      masterGain.gain.value = 0.5;
+      
+      source.connect(filterNode);
+      filterNode.connect(masterGain);
+      masterGain.connect(audioContext.destination);
+      
+      // Restaurer le filtre
+      filterType = currentFilterType;
+      filterFreq = currentFilterFreq;
+      updateFilter();
+      
+      source.start(0);
+      scriptNode = source;
+      isPlaying = true;
+      updatePlayButton();
     }
     
     function togglePlay() {
